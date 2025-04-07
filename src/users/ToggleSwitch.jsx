@@ -17,11 +17,6 @@ const ToggleSwitch = ({userId}) => {
 
   const handleToggle = async () => {
     const newState = !servoState;
-        // Prevent toggling on if usage exceeds max limit
-        // if (newState && totalUsage >= maxLimit) {
-        //   alert("Cannot turn on servo. Max water usage limit exceeded.");
-        //   return;
-        // }
     
      try {
           await updateDoc(servoControlDocRef, { servoState: newState });
@@ -31,24 +26,6 @@ const ToggleSwitch = ({userId}) => {
           console.error("Error updating servoControl document: ", error);
         }
   };
-
-    // useEffect(() => {
-    //   // Monitor totalUsage and update servoState if necessary
-    //   const checkUsageAndUpdateServo = async () => {
-    //     if (totalUsage >= maxLimit && servoState) {
-    //       try {
-    //         await updateDoc(servoControlDocRef, { servoState: false });
-    //         setServoState(false);
-    //         // console.log("Max limit exceeded. Servo turned off.");
-    //       } catch (error) {
-    //         console.error("Error updating servoControl document: ", error);
-    //       }
-    //     }
-    //   };
-  
-    //   checkUsageAndUpdateServo();
-    // }, [totalUsage, maxLimit, servoState, servoControlDocRef]);
-    
     
     useEffect(() => {
     // Fetch initial servo state and limits

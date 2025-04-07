@@ -123,12 +123,12 @@
     overflow-y: scroll; /* Force scrollbar to be visible */
   }
   /* Custom Scrollbar */
-  ::-webkit-scrollbar {
+  ::-webkit-scrollbar { 
     width: 10px; /* Width of the scrollbar */
   }
   
   /* Track (the background) */
-  ::-webkit-scrollbar-track {
+  ::-webkit-scrollbar-track {    display: none;
     background: #1e1e1e; /* Dark background */
     border-radius: 10px;
   }
@@ -140,6 +140,7 @@
   
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
+
     background: linear-gradient(45deg,#3a3c54, #2d3250);
   }
   

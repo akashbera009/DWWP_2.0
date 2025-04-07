@@ -6,6 +6,7 @@ import { MdOutlineWifiPassword } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
 import "./Online_Status.css";
 import { useNavigate } from "react-router-dom";
+// import  UserSettingsSection  from "./User_section_settings";
 
 const Online_Status = ({ userId }) => {
   const [lastSeen, setLastSeen] = useState(null);
@@ -99,7 +100,7 @@ const Online_Status = ({ userId }) => {
     <br></br>
     
 
-    
+    {/* <UserSettingsSection userId = {userId}/> */}
     </>
     
   );

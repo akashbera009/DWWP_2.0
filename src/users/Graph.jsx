@@ -1,35 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
 
+import { db } from "../firebaseConfig"; // Adjust the path as necessary
+import { doc, onSnapshot , getDoc } from "firebase/firestore"; // Import onSnapshot
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const sampleData = {
-  January: 1200,
-  February: 1100,
-  March: 1300,
-  April: 1250,
-  May: 1400,
-  June: 1350,
-  July: 1500,
-  August: 1450,
-  September: 1380,
-  October: 1420,
-  November: 1280,
-  December: 1340,
-};
-
-const WaterUsageGraph = ({ data = sampleData }) => {
+const WaterUsageGraph = ({ userId }) => {
+  // let [limitBYUser,  setLimitByUser] = useState(0); // limit by user 
+  const [todayUsage, setTodayUsage] = useState(0);
+  // const [totalUsage, setTotalUsage] = useState(0);
+  let [data, setData] = useState([]);
+  const [isWaterFlowFetched, setIsWaterFlowFetched] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+
+  
+
+  useEffect(() => {
+    if (!userId) return; 
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0"); // Ensure two-digit format
+        const day = String(now.getDate()).padStart(2, "0");
+        const yearMonth = `${year}-${month}`; // Format: "YYYY-MM"
+        let today = `${year}-${month}-${day}`; // Format: "YYYY-MM"
+    
+        const usageDocRef = doc(db, "users", userId, "monthlyUsages", yearMonth);
+
+    const unsubscribe = onSnapshot(usageDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        today = today.toString()
+        setTodayUsage(data[today] || 0 );
+
+        let dataEnrty = Object.entries(data).filter(([key]) => key.startsWith(yearMonth))
+        dataEnrty.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+
+        setData(dataEnrty) ; 
+    
+      }
+      setIsWaterFlowFetched(true);
+    }, (error) => {
+      console.error("Error fetching water usage:", error);
+    });
+  
+    // Cleanup function to unsubscribe when component unmounts
+    return () => unsubscribe();
+  }, [userId]);
+
+
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const months = Object.keys(data);
-  const usageData = months.map(month => data[month] || 0);
+  const months = data.map(([date]) => date);
+  const usageData = data.map(([_, value]) => value);
+  
 
   const chartData = {
     labels: months,
@@ -88,7 +118,7 @@ const WaterUsageGraph = ({ data = sampleData }) => {
             onClick={handleToggle} 
             style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '16px' }}
           >
-            {isCollapsed ? <FaChevronDown /> : <FaChevronUp />} Current Month: {data[currentMonth] || 0} Liters
+            {isCollapsed ? <FaChevronDown /> : <FaChevronUp />} Current Month: {todayUsage || 0} Liters
           </button>
           {!isCollapsed && (
             <ul style={{ listStyle: 'none', padding: '10px', margin: 0, backgroundColor: 'black', border: '1px solid #ddd', borderRadius: '5px', transition: 'all 0.3s ease' }}>

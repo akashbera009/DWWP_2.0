@@ -58,51 +58,18 @@ const DashboardCard = ({ userId }) => {
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, "0"); // Ensure two-digit format
-        const day = String(now.getDate()); // Ensure two-digit format
+        // const day = String(now.getDate()); // Ensure two-digit format
+        const day = String(now.getDate()).padStart(2, "0");
         const yearMonth = `${year}-${month}`; // Format: "YYYY-MM"
-        const today = `${year}-${month}-${day}`; // Format: "YYYY-MM"
+        let today = `${year}-${month}-${day}`; // Format: "YYYY-MM"
     
-        // Firestore document path: /users/{userId}/monthlyUsages/{YYYY-MM}
         const usageDocRef = doc(db, "users", userId, "monthlyUsages", yearMonth);
-    
-      //   // Fetch water usage for the month
-      //   const fetchWaterUsage = async () => {
-      //     try {
-      //       const docSnap = await getDoc(usageDocRef);
-      //       if (docSnap.exists()) {
-      //         const data = docSnap.data();
-              
-      //         setTodayUsage(data[today])
-      //         // Sum all values from the document (each field is a date with a number)
-      //         const total = Object.entries(data)
-      //         .filter(([key]) => key.startsWith(yearMonth)) // Only include keys with "YYYY-MM"
-      //         .reduce((sum, [, usage]) => sum + (usage || 0), 0);
-            
-      //         const userLimit = Object.entries(data)
-      //         .find(([key]) => key === "limit"); // Find the key-value pair directly
-            
-      //       const limitValue = userLimit ? Number(userLimit[1]) : 0; // Convert to number, default to 0
-      //       // console.log(limitValue);
-            
-      //       setLimitByUser(limitValue);
-      //       sessionStorage.setItem("limitBYUser", limitValue);
-              
-      //         setTotalUsage(total);
-      //         sessionStorage.setItem("totalUsage", total);
-      //       }
-      //       setIsWaterFlowFetched(true);
-      //     } catch (error) {
-      //       console.error("Error fetching water usage:", error);
-      //     }
-      //   };
-    
-      //   fetchWaterUsage();
-      // }, [userId]);
-    // Subscribe to real-time updates
+
     const unsubscribe = onSnapshot(usageDocRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        setTodayUsage(data[today] || 0);
+        today = today.toString()
+        setTodayUsage(data[today] || 0 );
   
         // Sum all values from the document (each field is a date with a number)
         const total = Object.entries(data)
@@ -402,14 +369,14 @@ const DashboardCard = ({ userId }) => {
       <div className="second-row">
         <div className="com-box">
           <p class="text">Limit:</p>
-          <p class="price-value">₹ {regularLimit}</p>
+          <p class="price-value"> {regularLimit}</p>
         </div>
         <div className="com-box">
-          <p class="text">Penelty/Ltr :</p>
-          <p class="price-value">₹ {penaltyPrice}</p>
+          <p class="text">Price/Ltr :</p>
+          <p class="price-value">₹ {regularPrice}</p>
         </div>
         <div className="com-box">
-          <p class="text">Penelty/Ltr :</p>
+          <p class="text">Penalty/Ltr :</p>
           <p class="price-value">₹ {penaltyPrice}</p>
         </div>
       </div>
@@ -435,7 +402,7 @@ const DashboardCard = ({ userId }) => {
                 descrip={
                   " Enjoy this Summar with Our special Summar plan with that will be helpfull for you and Get water easily "
                 }
-                icon={"⚡"}
+                icon={""}
               />
               <Recomended_recharge
                 price={30}

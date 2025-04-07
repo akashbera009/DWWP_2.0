@@ -51,15 +51,16 @@ function App() {
         {/* // user route */}
         <Route path="user/" element={<Testing />}>
           <Route path="gateControl" element={<Servo_Control userId={userId} />} />
-          <Route path="graph" element={<WaterUsageGraph />} />
+          <Route path="graph" element={<WaterUsageGraph   userId={userId}  />} />
           
           <Route path="pay/" element={<PaymentsDashboard userId={userId} />}/>
           <Route path="topup/" element={<Subscription  userId={userId} />}/>
 
-          <Route path="onlineStatus" element={<Online_Status userId={userId} />}/>
+          {/* <Route path="onlineStatus" element={<Online_Status userId={userId} />}/> */}
+          <Route path="onlineStatus" element={<UserSettingsSection userId = {userId}/>}/>
           <Route path="dashboard" element={<DashboardCard userId={userId} />} />
           <Route path="complain" element={<RaiseComplaint />} />
-          <Route path="user_settings" element={<UserSettingsSection />} />
+          <Route path="user_settingss" element={<UserSettingsSection userId = {userId}/>} />
         </Route>
 
         {/* // Admin route  */}
