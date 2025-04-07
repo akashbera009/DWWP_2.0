@@ -27,13 +27,6 @@ const TopBar = () => {
     return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
-//   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-
-// const handleNotificationToggle = () => {
-//   setNotificationsEnabled((prev) => !prev);
-// };
-
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {

@@ -85,7 +85,8 @@ const UserSettingsSection = ({ userId }) => {
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
-          </div>
+          </div>    
+           <p className=''>Please Use this SSID & Password to connect Device</p>
         </motion.div>
       </div>
     </motion.div>

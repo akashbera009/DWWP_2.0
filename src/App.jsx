@@ -56,11 +56,10 @@ function App() {
           <Route path="pay/" element={<PaymentsDashboard userId={userId} />}/>
           <Route path="topup/" element={<Subscription  userId={userId} />}/>
 
-          {/* <Route path="onlineStatus" element={<Online_Status userId={userId} />}/> */}
           <Route path="onlineStatus" element={<UserSettingsSection userId = {userId}/>}/>
           <Route path="dashboard" element={<DashboardCard userId={userId} />} />
           <Route path="complain" element={<RaiseComplaint />} />
-          <Route path="user_settingss" element={<UserSettingsSection userId = {userId}/>} />
+          {/* <Route path="user_settingss" element={<UserSettingsSection userId = {userId}/>} /> */}
         </Route>
 
         {/* // Admin route  */}

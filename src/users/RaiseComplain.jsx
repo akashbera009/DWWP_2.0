@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import emailjs from "@emailjs/browser";
 import "./RaiseComplaint.css";
 
 const RaiseComplaint = () => {
+  // ... (keep all existing state variables and logic exactly the same)
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -28,12 +30,34 @@ const RaiseComplaint = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Complaint submitted:", { name, email, complaint });
-    setSubmitted(true);
-    setName("");
-    setEmail("");
-    setSelectedOptions([]);
-    setComplaint("");
+
+    const serviceId = "service_g8u6eis";
+    const templateId = "template_46d2hqi";
+    const publicKey = "9L_lR2--NAjfcN-jA";
+
+    // const serviceId = "service_kxmtcrv";
+    // const templateId = "template_m9bpt1j";
+    // const publicKey = "8UVSrjrFC4Cxf_RIu";
+
+    const templateParams = {
+      from_name: name,
+      from_email: email,
+      complaint: [...selectedOptions, complaint].join("\n"),
+    };
+
+    emailjs
+      .send(serviceId, templateId, templateParams, publicKey)
+      .then((response) => {
+        console.log("Email sent successfully:", response);
+        setSubmitted(true);
+        setName("");
+        setEmail("");
+        setSelectedOptions([]);
+        setComplaint("");
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
   };
 
   return (
@@ -41,39 +65,35 @@ const RaiseComplaint = () => {
       {!submitted ? (
         <div className="complaint-card">
           <h2>Raise a Complaint</h2>
-          <br />
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="name">Your Name</label>
+              <label>Your Name</label>
               <input
                 type="text"
-                id="name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your full name"
               />
             </div>
             <div className="form-group">
-              <label htmlFor="email">Your Email</label>
+              <label>Your Email</label>
               <input
                 type="email"
-                id="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
               />
             </div>
 
-            {/* Purpose Selection Section */}
             <div className="form-group">
               <label>Complaint Purpose</label>
               <div className="checkbox-group">
                 {purposeOptions.map((option) => (
-                  <label
-                    key={option}
-                    className={`checkbox-label ${
-                      selectedOptions.includes(option) ? "selected" : ""
-                    }`}
+                  <label 
+                    key={option} 
+                    className={`checkbox-label ${selectedOptions.includes(option) ? 'selected' : ''}`}
                   >
                     <input
                       type="checkbox"
@@ -87,13 +107,13 @@ const RaiseComplaint = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="complaint">Complaint Details</label>
+              <label>Complaint Details</label>
               <textarea
-                id="complaint"
-                rows="5"
+                rows="4"
                 required
                 value={[...selectedOptions, complaint].join("\n")}
                 onChange={(e) => setComplaint(e.target.value)}
+                placeholder="Describe your issue in detail..."
               />
             </div>
 
@@ -104,15 +124,15 @@ const RaiseComplaint = () => {
         </div>
       ) : (
         <div className="success-card">
-          <div className="success-icon">
-            <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-              <circle className="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
-              <path className="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
-            </svg>
-          </div>
-          <h2>Complaint Submitted Successfully!</h2>
-          <p>Your complaint has been received. We will get back to you shortly.</p>
-        </div>
+                 <div className="success-icon">
+                 <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle className="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                    <path className="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                 </svg>
+               </div>
+                <h2>Complaint Submitted Successfully!</h2>
+              <p>Your complaint has been received. We will get back to you shortly.</p>
+             </div>
       )}
     </div>
   );

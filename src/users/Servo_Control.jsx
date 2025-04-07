@@ -4,7 +4,7 @@ import "./Servo_Control.css";
 import ToggleSwitch from "./ToggleSwitch";
 
 const Servo_Control = ({userId}) => {
-  console.log(userId);
+  // console.log(userId);
   
   return (
     <motion.div 

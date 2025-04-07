@@ -7,11 +7,17 @@
   }
   
   .settings-card {
+    display: flex;flex-direction: column;
+    align-items: center;
+    margin :0  2rem ; 
+    position: relative ;
     background: linear-gradient(to top right, rgb(7 16 45), rgb(58 60 84));
     border-radius: 15px;
     padding: 25px;
     margin-bottom: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    left: 5vw;
+    top: 20vh;
   }
   
   .settings-card h2 {
@@ -151,6 +157,8 @@
   }
 
   .device_and_pass{
+    /* background-color: #3182ce; */
     display: flex;
     flex-direction: row;
+    /* align-items: center; */
   }

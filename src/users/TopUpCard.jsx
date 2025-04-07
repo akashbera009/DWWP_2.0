@@ -136,7 +136,7 @@ const TopUpCard = ({ userId, addon, price, Refill }) => {
     {paymentSuccess &&
      <div className="success-card-container">
       <div className="success-card-payment">
-      <button className="cancel-dialog-payment"  onClick={() => setPaymentSuccess(null)}> x </button>
+     
 
           <div className="success-icon">
               <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
@@ -148,6 +148,10 @@ const TopUpCard = ({ userId, addon, price, Refill }) => {
           <p>Your payment for {paymentSuccess.flag} has been received.</p>
           <p>Pay ID : {paymentSuccess.paymentId} </p>
           <p>Time: {paymentSuccess.timeStamp} </p>
+          <div className="payment-success-button-group">
+          <button className="view-dialog-payment" onClick={() => window.location.href = "./pay"}>View</button>
+          <button className="cancel-dialog-payment"  onClick={() => setPaymentSuccess(null)}> Close </button>
+          </div>
       </div>
       </div>
     }

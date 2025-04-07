@@ -115,15 +115,15 @@ const Sidebar = () => {
               <MessageSquareWarning size={20} /> <span>Raise Complaint</span>
             </li>
           </NavLink>
-          <NavLink
-            to="/user/user_settings"
+          {/* <NavLink
+            to="/user/settings"
             className={({ isActive }) => (isActive ? "active" : "")}
             style={{ textDecoration: "none" }}
           >
             <li>
               <CiSettings size={25} /> <span>Settings</span>
             </li>
-          </NavLink>
+          </NavLink> */}
         </ul>
       </nav>
 
