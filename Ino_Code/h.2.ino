@@ -340,7 +340,7 @@ float fetchFirebaseData() {
 
         // ✅ Only update if a valid value is received
         if (usage >= 0) {
-          totalUsage = usage;
+          // totalUsage = usage;
         }
         return usage;
       }
@@ -520,7 +520,8 @@ if (isOnline) {
 
   // ✅ Fetch previous data from Firestore only if online
   if (isOnline) {
-    totalUsage = fetchFirebaseData();
+    // totalUsage = fetchFirebaseData();
+    fetchFirebaseData();
   }
 
 
@@ -577,8 +578,11 @@ void loop() {
       // Fetch usage data if we were offline
       if (wasOffline) {
         float fetchedUsage = fetchFirebaseData();
+        Serial.println("WiFi Reconnected and the fetched data is %d ", fetchedUsage );
         if (fetchedUsage >= 0) {
-          totalUsage = fetchedUsage;
+          // totalUsage = fetchedUsage;
+          
+        Serial.println("WiFi Reconnected and in local totalusage is %d ",totalUsage  );
         }
         wasOffline = false;
       }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import emailjs from "@emailjs/browser";
 import "./RaiseComplaint.css";
 
-const RaiseComplaint = () => {
+const RaiseComplaint = ({userId}) => {
   // ... (keep all existing state variables and logic exactly the same)
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -81,7 +81,8 @@ const RaiseComplaint = () => {
               <input
                 type="email"
                 required
-                value={email}
+                disabled
+                value={userId}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
               />

@@ -405,7 +405,7 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
           <Online_Status userId= {userId} />
           <br></br>
           <div className="box">
-            <Rechargecard />
+            <Rechargecard userId={userId}/>
           </div>
         </div>
 

@@ -58,7 +58,7 @@ function App() {
 
           <Route path="onlineStatus" element={<UserSettingsSection userId = {userId}/>}/>
           <Route path="dashboard" element={<DashboardCard userId={userId} />} />
-          <Route path="complain" element={<RaiseComplaint />} />
+          <Route path="complain" element={<RaiseComplaint userId={userId}  />} />
           {/* <Route path="user_settingss" element={<UserSettingsSection userId = {userId}/>} /> */}
         </Route>
 
