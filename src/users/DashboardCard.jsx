@@ -446,6 +446,7 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
             <div className="third-row-child">
               <Recomended_recharge
                 price={20}
+                qty = {50}
                 type={"Summar"}
                 descrip={
                   " Enjoy this Summar with Our special Summar plan with that will be helpfull for you and Get water easily "
@@ -453,7 +454,8 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
                 icon={""}
               />
               <Recomended_recharge
-                price={30}
+                price={150}
+                qty = {300}
                 type={"Festive"}
                 descrip={
                   "Enjoy this Festival with Our special Summar plan with that will be helpfull for you and Get water easily "

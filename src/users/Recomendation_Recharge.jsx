@@ -3,7 +3,7 @@ import './Recomended_recharge.css';
 
 import { useNavigate } from "react-router-dom";
 
-const Recomended_recharge = ({price , type , descrip , icon}) => {
+const Recomended_recharge = ({price ,qty, type , descrip , icon}) => {
           const naviagte=useNavigate()
 
 const handelNevigation=()=>{
@@ -24,7 +24,7 @@ const handelNevigation=()=>{
           </br>
           <div className="price">
                     <span class="price_value">₹ {price}<span style={{fontWeight:"0"}}> /</span></span>
-                    <span class="quantity">100 L</span>
+                    <span class="quantity">{qty}L</span>
           </div>
          
         

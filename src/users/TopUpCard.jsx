@@ -5,7 +5,7 @@ import { doc, updateDoc, getDoc , setDoc } from "firebase/firestore";
 import "./TopUpCard.css";
 import Loader from '../Loader/Loader'
 
-const TopUpCard = ({ userId, addon, price, Refill }) => {
+const TopUpCard = ({ userId, addon, price, Refill, url , msg }) => {
   const [quantity, setQuantity] = useState(1); // Default quantity set to 1
   const [paymentSuccess, setPaymentSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -107,32 +107,41 @@ const TopUpCard = ({ userId, addon, price, Refill }) => {
   
   return (
     <>
-    
-
-
-    <div className="top-up_card">
-      <span className="small-text">{addon}</span>
-      <span className="title">Refill Your Water {Refill} L</span>
+         <div className="top-up_card festive-theme">
+      <span className="festive-label">{addon}</span>
+       
+        <div className="water-icon">
+       
+        
       
-
-      {/* Fixed Amount Display */}
-      <div className="fixed-amount">₹ {price}</div>
-      {/* Payment Method Dropdown */}
-      <div className="dropdown-x">
-        <label>Select Quantity:</label>
-        <select value={quantity} onChange={(e) => {setQuantity(Number(e.target.value)); console.log("Selected Quantity:", newQuantity)}}>
-          <option value="1">Pack of 1</option>
-          <option value="2">Pack of 2</option>
-          <option value="3">Pack of 3</option>
-          <option value="4">Pack of 4</option>
-        </select>
+        {/* <img src="https://i.ibb.co/LXmxY1gd/water-1.png"/> */}
+        <img src={url}/>
+        </div>
+        <div className="subscription-title"> {msg}{Refill}L Water </div>
+        <div className="quantity-selector">
+          <span className="label">Quantity</span>
+          <div className="controls">
+            <button
+              onClick={() => setQuantity(Math.max(quantity - 1, 1))}
+              className="btn"
+            >
+              -
+            </button>
+            <span className="count">{quantity}</span>
+            <button
+              onClick={() => setQuantity(quantity + 1)}
+              className="btn"
+            >
+              +
+            </button>
+          </div>
+        </div>
+        <br></br>
+        <div className="price">₹ {price} per Pack</div>
+        <button className="add-btn" onClick={() => handleTopUp(price, quantity, Refill)}>
+          Add
+        </button>
       </div>
-
-      {/* Top Up Button */}
-      <button className="topup-button" onClick={()=>handleTopUp(price  , quantity, Refill )}>
-        Recharge Now
-      </button>
-    </div>
     {paymentSuccess &&
      <div className="success-card-container">
       <div className="success-card-payment">

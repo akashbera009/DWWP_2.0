@@ -1,6 +1,6 @@
 // first 2 loader pages updated 
 
-// with out sound 
+// with buzzer
 
 #include <WiFi.h>
 #include <Firebase_ESP_Client.h>
@@ -36,6 +36,8 @@
 #define OLED_SCL 22
 
 #define QUEUE_SIZE 15
+
+const int buzzerPin = 13;
 
 Servo myServo;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
@@ -241,6 +243,8 @@ void updateServoState() {
   if (totalUsage >= storedLimit) {
     effectiveServoState = false; // Force OFF if limit exceeded
     Serial.println("⚠️ Limit exceeded: Forcing servo OFF");
+    limitExpiredBeep();
+    delay(2000);
   } else {
     effectiveServoState = storedServoState; // Respect Firebase value
     Serial.printf("✅ Within limit: Servo state = %s\n", 
@@ -253,6 +257,8 @@ void updateServoState() {
   // Move servo only if the target angle changes
   if (targetAngle != currentServoAngle) {
     myServo.write(targetAngle);
+    servoStatusBeep();  // Call when servo turns on/off
+    delay(2000);
     currentServoAngle = targetAngle;
     Serial.printf("🔄 Servo moved to %d°\n", targetAngle);
           delay(100);
@@ -386,6 +392,7 @@ void updateLastSeen() {
 void setup() {
   Serial.begin(115200);
   initializeLocalStorage();  // Load local data
+  pinMode(buzzerPin, OUTPUT);
 
   // ✅ Initialize OLED display BEFORE connecting WiFi
   Wire.begin(OLED_SDA, OLED_SCL);
@@ -457,6 +464,9 @@ void setup() {
       display.setCursor(0, 0);
       display.println("Online");
       display.display();
+      wifiStatusBeep();   // Call when Wi-Fi status changes
+      delay(2000);
+
     Serial.println("\n✅ WiFi Connected!");
     //   playAudio("WIFI_CONNECTED.wav");
     isOnline = true;
@@ -555,7 +565,8 @@ void loop() {
       isOnline = true;
     //    playAudio("WIFI_CONNECTED.wav");
       Serial.println("✅ WiFi Reconnected! isOnline = true");
-      
+        wifiStatusBeep();   // Call when Wi-Fi status changes
+        // delay(2000);
       // Wait for connection stabilization
       delay(5000);
       
@@ -682,7 +693,39 @@ void FINAL_DISPLAY() {
 }
 
 
+// buzzer sounds 
 
+void wifiStatusBeep() {
+    for (int i = 0; i < 2; i++) {
+      digitalWrite(buzzerPin, HIGH);
+      delay(100);
+      digitalWrite(buzzerPin, LOW);
+      delay(100);
+    }
+  }
+  
+  // 1 long beep
+  void servoStatusBeep() {
+    digitalWrite(buzzerPin, HIGH);
+    delay(500);
+    digitalWrite(buzzerPin, LOW);
+  }
+  
+  // Fast repeated beep
+  void limitExpiredBeep() {
+    for (int i = 0; i < 3; i++) {
+      // Each cycle: beep rapidly 5 times
+      for (int j = 0; j < 5; j++) {
+        digitalWrite(buzzerPin, HIGH);
+        delay(100);  // Longer beep
+        digitalWrite(buzzerPin, LOW);
+        delay(100);
+      }
+      delay(500); // Short pause between burst cycles
+    }
+  }
+  
+  
 
 
 

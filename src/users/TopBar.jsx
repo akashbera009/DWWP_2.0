@@ -27,10 +27,12 @@ const TopBar = () => {
     return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserEmail(user.email);
+        
         try {
           const userDocRef = doc(db, 'users', user.email);
           const userDoc = await getDoc(userDocRef);
@@ -111,7 +113,7 @@ const TopBar = () => {
                 </button>
               </div>
               <form onSubmit={handleSubmit} className="profile-form">
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label>Name:</label>
                   <input
                     type="text"
@@ -119,7 +121,7 @@ const TopBar = () => {
                     value={userDetails.name}
                     onChange={handleInputChange}
                   />
-                </div>
+                </div> */}
                 <div className="form-group">
                   <label>Address:</label>
                   <input
@@ -149,7 +151,9 @@ const TopBar = () => {
           </div>
         )}
       </div>
-    </div>   
+    </div>
+    
+    
  
   );
 };
