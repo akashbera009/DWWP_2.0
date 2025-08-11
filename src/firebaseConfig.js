@@ -22,7 +22,7 @@ const firebaseConfig = {
   // appId: "1:446965936454:web:cc584d92bf7c1b39d37547",
   // measurementId: "G-5Z2GXCVQTZ"
 
-
+  
   apiKey:import.meta.env.VITE_FIREBASE_API_KEY ,
   authDomain: import.meta.env.VITE_AUTHDOMAIN,
   projectId: import.meta.env.VITE_PROJECTID,
