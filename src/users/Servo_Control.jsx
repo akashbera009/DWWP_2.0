@@ -31,6 +31,10 @@ const Servo_Control = ({userId}) => {
         <div className="fixed-amount">
           <ToggleSwitch userId={userId}/>
         </div>
+
+        <div>
+          
+        </div>
       </motion.div>
     </motion.div>
   );
