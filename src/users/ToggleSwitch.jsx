@@ -3,7 +3,7 @@ import { db } from '../firebaseConfig';  // Adjust the path as necessary
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore';  // Import updateDoc for updating fields
 import "./ToggleSwitch.css"; // Assuming you will add the CSS separately or inline.
 
-const ToggleSwitch = ({userId}) => {
+const ToggleSwitch = ({userId, disabled}) => {
   if (!userId) {
     console.error("userId is undefined in ToggleSwitch");
     return null; // Don't render the component if userId is missing
@@ -34,7 +34,6 @@ const ToggleSwitch = ({userId}) => {
   
     const [maxLimit, setMaxLimit] = useState( parseFloat(sessionStorage.getItem("maxLimit")) || 0);
     const [isWaterFlowFetched, setIsWaterFlowFetched] = useState(false);
-    // const [isPriceFetched, setIsPriceFetched] = useState(false);
     const [isLimitFetched, setIsLimitFetched] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -49,8 +48,6 @@ const ToggleSwitch = ({userId}) => {
 
         if (servoSnap.exists()) {
           setServoState(servoSnap.data().servoState);
-          // console.log(servoState);
-          
         } else {
           console.log("No such servoControl document!");
         }
@@ -105,9 +102,6 @@ const ToggleSwitch = ({userId}) => {
     }, [userId,limitBYUser]);
 
     const cutoffLimit = limitBYUser + penaltyLimit + addedLimit;
-    
-    // console.log(limitBYUser ,  penaltyLimit , addedLimit);
-    
     
     const handleToggle = async () => {
       if (totalUsage >= cutoffLimit) {
@@ -311,6 +305,7 @@ const ToggleSwitch = ({userId}) => {
           type="checkbox"
           className="togglesw"
           checked={!!servoState} 
+          disabled={disabled}
           onChange={handleToggle} 
         />
         <div className={`indicator left ${servoState? 'active' : ''}`}></div>

@@ -1,146 +1,152 @@
 /* Add to existing styles */
- *{
+* {
   color: #eee;
- }
+}
 
-  .user-notification-item {
-    padding: 12px 15px;
-  }
-  
-  .user-mark-all-read {
-    color: #50fa7b;
-    background: none;
-    border: none;
-    padding: 0;
-  }
+.user-notification-item {
+  padding: 12px 15px;
+}
 
-  /* Dropdown Card */
-  .user-notification-dropdown {
-    position: absolute;
-    top: 60px; /* Adjust based on your top bar height */
-    right: 180px;
-    width: 250px;
-    padding: 20px;
-    background: linear-gradient(145deg, rgba(72,138,236,0.1), rgba(16,22,45,0.4));
-    background-color: transparent;
-    backdrop-filter: blur(5px);
-    max-height: 30vh;
-    overflow-y: auto ; 
-    background-color: #333;
-    border-radius: 8px;
-    border: 1px solid rgba(72,138,236,0.2);
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    animation: slideDown 0.3s ease;
+.user-mark-all-read {
+  color: #50fa7b;
+  background: none;
+  border: none;
+  padding: 0;
+}
 
-  }
-  
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* Notification Header */
-  .user-notification-header {
-    color: #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid #eeeeee72;
+/* Dropdown Card */
+.user-notification-dropdown {
+  position: absolute;
+  top: 60px;
+  /* Adjust based on your top bar height */
+  right: 180px;
+  width: 250px;
+  padding: 20px;
+  background: linear-gradient(145deg, rgba(72, 138, 236, 0.1), rgba(16, 22, 45, 0.4));
+  background-color: transparent;
+  backdrop-filter: blur(5px);
+  max-height: 30vh;
+  overflow-y: auto;
+  background-color: #333;
+  border-radius: 8px;
+  border: 1px solid rgba(72, 138, 236, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: slideDown 0.3s ease;
+
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
 
-  
-  .user-notification-header h4 {
-    margin: 0;
-    font-size: 16px;
-    color: #eee;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .user-mark-all-read {
-    color:#50fa7b; 
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .user-mark-all-read:hover {
-    text-decoration: underline;
-  }
-  
-  /* Notification List */
-  .user-notification-list {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-  
-  /* Notification Item */
-  .user-notification-item {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    border-bottom: 1px solid #eeeeee54;
-    transition: background-color 0.3s ease;
-  }
-  
-  .user-notification-item:hover {
-    background-color: linear-gradient(145deg, rgba(72,138,236,0.1), rgba(16,22,45,0.4));
-  }
-  
-  .user-notification-item .user-notification-icon {
-    cursor: pointer;
-    font-size: 18px;
-    margin-right: 10px; 
+}
 
-  }
-  
-  .user-notification-content {
-    flex: 1;
-  }
-  
-  .user-notification-content p {
-    margin: 0;
-    font-size: 14px;
-    color: #eee;
-  }
-  
-  .user-notification-content .user-notification-time {
-    font-size: 12px;
-    color: #9e9c9c;
-  }
+/* Notification Header */
+.user-notification-header {
+  color: #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eeeeee72;
+}
 
 
+.user-notification-header h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #eee;
+}
+
+.user-mark-all-read {
+  color: #50fa7b;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.user-mark-all-read:hover {
+  text-decoration: underline;
+}
+
+/* Notification List */
+.user-notification-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Notification Item */
+.user-notification-item {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #eeeeee54;
+  transition: background-color 0.3s ease;
+}
+
+.user-notification-item:hover {
+  background-color: linear-gradient(145deg, rgba(72, 138, 236, 0.1), rgba(16, 22, 45, 0.4));
+}
+
+.user-notification-item .user-notification-icon {
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 10px;
+
+}
+
+.user-notification-content {
+  flex: 1;
+}
+
+.user-notification-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #eee;
+}
+
+.user-notification-content .user-notification-time {
+  font-size: 12px;
+  color: #9e9c9c;
+}
 
 
-  html {
-    overflow-y: scroll; /* Force scrollbar to be visible */
-  }
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar { 
-    width: 10px; /* Width of the scrollbar */
-  }
-  
-  /* Track (the background) */
-  ::-webkit-scrollbar-track {    display: none;
-    background: #1e1e1e; /* Dark background */
-    border-radius: 10px;
-  }
-  
-  /* Handle (the draggable part) */
-  ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
 
-    background: linear-gradient(45deg,#3a3c54, #2d3250);
-  }
-  
+
+html {
+  overflow-y: scroll;
+  /* Force scrollbar to be visible */
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  /* Width of the scrollbar */
+}
+
+/* Track (the background) */
+::-webkit-scrollbar-track {
+  display: none;
+  background: #1e1e1e;
+  /* Dark background */
+  border-radius: 10px;
+}
+
+/* Handle (the draggable part) */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+
+  background: linear-gradient(45deg, #3a3c54, #2d3250);
+}

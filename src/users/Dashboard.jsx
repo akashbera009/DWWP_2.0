@@ -30,7 +30,6 @@ import { NavLink, Outlet } from "react-router-dom";
 import TopBar from "./TopBar";
 
 const Sidebar = () => {
-  
   const navigate = useNavigate(); // Navigate after logout
   const handleLogout = async () => {
     try {
@@ -43,7 +42,9 @@ const Sidebar = () => {
   };
   return (
     <div className="sidebar">
-      <div className="logo"><img src="https://i.ibb.co/TDd24C9X/Domestic.png"/></div>
+      <div className="logo">
+        <img src="https://i.ibb.co/TDd24C9X/Domestic.png" />
+      </div>
       <nav>
         <ul>
           <NavLink
@@ -127,26 +128,23 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      <div className="settings"  onClick={handleLogout}>
-        < MdOutlineLogout size={20} /> <span>Logout</span>
+      <div className="settings" onClick={handleLogout}>
+        <MdOutlineLogout size={20} /> <span>Logout</span>
       </div>
     </div>
   );
 };
 
-
 const Testing = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   return (
     <>
-    
       <div className="dashboard-container">
-        
         <Sidebar />
-        
+
         <div className="main-content">
-        <TopBar  notificationsEnabled={notificationsEnabled}/>
-          <Outlet context={{ setNotificationsEnabled }}/>
+          <TopBar notificationsEnabled={notificationsEnabled} />
+          <Outlet context={{ setNotificationsEnabled }} />
         </div>
       </div>
     </>

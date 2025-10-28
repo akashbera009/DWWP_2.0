@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
-import { auth } from '../firebaseConfig';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import { auth } from "../firebaseConfig";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 import "./NotificationDropdown.css";
 import { Bell } from "lucide-react";
 import NotificationDropdown from "./NotificationDropdown.jsx";
@@ -19,7 +19,7 @@ const TopBar = () => {
   const [userDetails, setUserDetails] = useState({
     name: "",
     address: "",
-    phone: ""
+    phone: "",
   });
 
   const getGravatarUrl = (userEmail) => {
@@ -27,14 +27,13 @@ const TopBar = () => {
     return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserEmail(user.email);
-        
+
         try {
-          const userDocRef = doc(db, 'users', user.email);
+          const userDocRef = doc(db, "users", user.email);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             const userData = userDoc.data();
@@ -43,7 +42,7 @@ const TopBar = () => {
             setUserDetails({
               name: userData.userDetails?.[0] || "",
               address: userData.userDetails?.[1] || "",
-              phone: userData.userDetails?.[2] || ""
+              phone: userData.userDetails?.[2] || "",
             });
           }
         } catch (error) {
@@ -57,16 +56,16 @@ const TopBar = () => {
   const handleInputChange = (e) => {
     setUserDetails({
       ...userDetails,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const userDocRef = doc(db, 'users', userEmail);
+      const userDocRef = doc(db, "users", userEmail);
       await updateDoc(userDocRef, {
-        userDetails: [userDetails.name, userDetails.address, userDetails.phone]
+        userDetails: [userDetails.name, userDetails.address, userDetails.phone],
       });
       setUsername(userDetails.name);
       setIsProfileModalOpen(false);
@@ -78,24 +77,29 @@ const TopBar = () => {
   return (
     <div className="top-bar">
       <div className="notificatio-profile">
-        <div 
-          className="notification-icon" 
+        <div
+          className="notification-icon"
           onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
         >
           <Bell size={20} />
         </div>
-        
-        <NotificationDropdown 
-          isOpen={isNotificationsOpen} 
+
+        <NotificationDropdown
+          isOpen={isNotificationsOpen}
           onClose={() => setIsNotificationsOpen(false)}
         />
-        
-        <div className="user-profile" onClick={() => setIsProfileModalOpen(true)}>
+
+        <div
+          className="user-profile"
+          onClick={() => setIsProfileModalOpen(true)}
+        >
           <img
             src={profileImageurl || getGravatarUrl(userEmail)}
             alt="User"
             className="user-icon"
-            onError={(e) => { e.target.src = "https://i.ibb.co/93vpqhDS/profile-pic.png"; }}
+            onError={(e) => {
+              e.target.src = "https://i.ibb.co/93vpqhDS/profile-pic.png";
+            }}
           />
           <span>{username}</span>
         </div>
@@ -105,7 +109,7 @@ const TopBar = () => {
             <div className="profile-modal">
               <div className="modal-header">
                 <h2>Edit Profile</h2>
-                <button 
+                <button
                   className="close-button"
                   onClick={() => setIsProfileModalOpen(false)}
                 >
@@ -141,7 +145,10 @@ const TopBar = () => {
                   />
                 </div>
                 <div className="modal-actions">
-                  <button type="button" onClick={() => setIsProfileModalOpen(false)}>
+                  <button
+                    type="button"
+                    onClick={() => setIsProfileModalOpen(false)}
+                  >
                     Cancel
                   </button>
                   <button type="submit">Save Changes</button>
@@ -152,9 +159,6 @@ const TopBar = () => {
         )}
       </div>
     </div>
-    
-    
- 
   );
 };
 

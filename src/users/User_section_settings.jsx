@@ -86,7 +86,7 @@ const UserSettingsSection = ({ userId }) => {
               </button>
             </div>
           </div>    
-           <p className=''>Please Use this SSID & Password to connect Device</p>
+           <p className='offline-warning'>Please Use this SSID & Password to connect Device</p>
         </motion.div>
       </div>
     </motion.div>

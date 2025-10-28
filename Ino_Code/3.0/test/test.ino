@@ -1,8 +1,3 @@
-// , other wise everything is okey 
-// seervo not working , flow sensor stops after a while 
-
-// we must have to solder water flow sensor ,as we have detected some loose connection here
-
 
 #include <WiFi.h> 
 #include <Firebase_ESP_Client.h>
@@ -94,16 +89,17 @@ struct AudioFile {
     int fileNumber;
     const char* fileName;
 };
-
 AudioFile audioFiles[] = {
-    {1, "NINTY_ALERT_ENGLISH.wav"},
-    {2, "NINTY_ALERT_HINDI.wav"},
-    {3, "PAYMENT_DUE_ENGLISH.wav"},
-    {4, "PAYMENT_DUE_HINDI.wav"},
-    {5, "WIFI_CONNECTED.wav"},
-    {6, "WIFI_DISCONNECT.wav"},
-    {7, "WATER_SUPPLY_ACTIVATED.wav"},
-    {8, "WATER_SUPPLY_STOPPED.wav"}
+    {1, "Ninty_Limit_English.mp3"},
+    {2, "Ninty_Limit_Hindi.mp3"},
+    {3, "Water_supply_started.mp3"},
+    {4, "Water_supply_started_hindi.mp3"},
+    {5, "Water_supply_stopped.mp3"},
+    {6, "Water_supply_stopped_hindi.mp3"},
+    {7, "Wifi_Connected.mp3"},
+    {8, "Wifi_Connected_hindi.mp3"},
+    {9, "Wifi_Disconnected.mp3"},
+    {10, "Wifi_Disconnected_hindi.mp3"}
 };
 
 int getFileNumber(const char* fileName) {
@@ -115,17 +111,19 @@ int getFileNumber(const char* fileName) {
     return -1;
 }
 
-void playAudio(const char* fileName) {
-    if (!dfPlayerAvailable) return; // Skip if no audio module
-    
-    int fileNumber = getFileNumber(fileName);
-    if (fileNumber != -1) {
-        enqueue(fileNumber);
-        Serial.print("Queued: ");
-        Serial.println(fileName);
-    } else {
-        Serial.println("Error: File not found!");
-    }
+void playAudioDual(const char* englishFile, const char* hindiFile) {
+    if (!dfPlayerAvailable) return;
+
+    int engFileNum = getFileNumber(englishFile);
+    int hinFileNum = getFileNumber(hindiFile);
+
+    if (engFileNum != -1) enqueue(engFileNum);
+    if (hinFileNum != -1) enqueue(hinFileNum);
+
+    Serial.print("🎧 Queued bilingual message: ");
+    Serial.print(englishFile);
+    Serial.print(" + ");
+    Serial.println(hindiFile);
 }
 
 void processAudioQueue() {
@@ -317,9 +315,9 @@ void updateServoState() {
     Serial.printf("🔄 Servo moved to %d°\n", targetAngle);
     
     if(targetAngle == 0 ){
-      playAudio("WATER_SUPPLY_ACTIVATED.wav");
+      playAudioDual("Water_supply_started.mp3", "Water_supply_started_hindi.mp3");
     } else {
-      playAudio("WATER_SUPPLY_STOPPED.wav");
+      playAudioDual("Water_supply_stopped.mp3", "Water_supply_stopped_hindi.mp3");
     }
     
     if (isOnline && effectiveServoState != storedServoState) {
@@ -430,6 +428,60 @@ void updateLastSeen() {
   }
 }
 
+
+// Helper function to draw an arc
+void drawArc(int cx, int cy, int r, float startAngle, float endAngle) {
+  for (float a = startAngle; a <= endAngle; a += 2.0) {
+    float rad = a * PI / 180.0;
+    int x = cx + r * cos(rad);
+    int y = cy + r * sin(rad);
+    display.drawPixel(x, y, SSD1306_WHITE);
+  }
+}
+
+void drawNoWiFiIcon(int cx, int cy) {
+  display.fillCircle(cx, cy, 2, SSD1306_WHITE);
+  drawArc(cx, cy, 5, 200, 340);
+  drawArc(cx, cy, 8, 200, 340);
+  drawArc(cx, cy, 11, 200, 340);
+  for (int i = 0; i < 3; i++) {
+    display.drawLine(cx - 12, cy + 5 + i, cx + 12, cy - 11 + i, SSD1306_WHITE);
+  }
+}
+
+void drawWiFiIcon(int cx, int cy) {
+  display.fillCircle(cx, cy, 2, SSD1306_WHITE);
+  drawArc(cx, cy, 5, 200, 340);
+  drawArc(cx, cy, 8, 200, 340);
+  drawArc(cx, cy, 11, 200, 340);
+}
+
+void FINAL_DISPLAY() {
+  display.clearDisplay();
+
+  if (isOnline) {
+    drawWiFiIcon(110, 15);
+  } else {
+    drawNoWiFiIcon(110, 15);
+  }
+
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(10, 10);
+  display.print(String(totalUsage, 0));
+
+  display.drawLine(0, 30, SCREEN_WIDTH, 30, SSD1306_WHITE);
+
+  display.setCursor(10, 40);
+  display.print(String(limit, 0));
+
+  display.setTextSize(2);
+  display.setCursor(10 + (6 * 12) + 10, 40);
+  display.print(effectiveServoState ? "ON" : "OFF");
+
+  display.display();
+}
+
 // -------------------- SETUP FUNCTION --------------------
 void setup() {
   Serial.begin(115200);
@@ -515,7 +567,7 @@ void setup() {
     display.println("Online");
     display.display();
     Serial.println("\n✅ WiFi Connected!");
-    playAudio("WIFI_CONNECTED.wav");
+    playAudioDual("Wifi_Connected.mp3", "Wifi_Connected_hindi.mp3");
     isOnline = true;
   } else {
     isOnline = false;
@@ -575,7 +627,7 @@ void loop() {
     if (isOnline) {
       isOnline = false;
       wasOffline = true;
-      playAudio("WIFI_DISCONNECT.wav");
+      playAudioDual("Wifi_Disconnected.mp3", "Wifi_Disconnected_hindi.mp3");
       Serial.println("⚠️ WiFi Disconnected! Working in offline mode.");
     }
     
@@ -589,7 +641,7 @@ void loop() {
   } else {
     if (!isOnline) {
       isOnline = true;
-      playAudio("WIFI_CONNECTED.wav");
+      playAudioDual("Wifi_Connected.mp3", "Wifi_Connected_hindi.mp3");
       Serial.println("✅ WiFi Reconnected! isOnline = true");
       
       delay(5000);
@@ -648,57 +700,4 @@ void loop() {
   
   FINAL_DISPLAY();
   delay(10);
-}
-
-// Helper function to draw an arc
-void drawArc(int cx, int cy, int r, float startAngle, float endAngle) {
-  for (float a = startAngle; a <= endAngle; a += 2.0) {
-    float rad = a * PI / 180.0;
-    int x = cx + r * cos(rad);
-    int y = cy + r * sin(rad);
-    display.drawPixel(x, y, SSD1306_WHITE);
-  }
-}
-
-void drawNoWiFiIcon(int cx, int cy) {
-  display.fillCircle(cx, cy, 2, SSD1306_WHITE);
-  drawArc(cx, cy, 5, 200, 340);
-  drawArc(cx, cy, 8, 200, 340);
-  drawArc(cx, cy, 11, 200, 340);
-  for (int i = 0; i < 3; i++) {
-    display.drawLine(cx - 12, cy + 5 + i, cx + 12, cy - 11 + i, SSD1306_WHITE);
-  }
-}
-
-void drawWiFiIcon(int cx, int cy) {
-  display.fillCircle(cx, cy, 2, SSD1306_WHITE);
-  drawArc(cx, cy, 5, 200, 340);
-  drawArc(cx, cy, 8, 200, 340);
-  drawArc(cx, cy, 11, 200, 340);
-}
-
-void FINAL_DISPLAY() {
-  display.clearDisplay();
-
-  if (isOnline) {
-    drawWiFiIcon(110, 15);
-  } else {
-    drawNoWiFiIcon(110, 15);
-  }
-
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10, 10);
-  display.print(String(totalUsage, 0));
-
-  display.drawLine(0, 30, SCREEN_WIDTH, 30, SSD1306_WHITE);
-
-  display.setCursor(10, 40);
-  display.print(String(limit, 0));
-
-  display.setTextSize(2);
-  display.setCursor(10 + (6 * 12) + 10, 40);
-  display.print(effectiveServoState ? "ON" : "OFF");
-
-  display.display();
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import emailjs from "@emailjs/browser";
 import "./RaiseComplaint.css";
 
-const RaiseComplaint = ({userId}) => {
+const RaiseComplaint = ({ userId }) => {
   // ... (keep all existing state variables and logic exactly the same)
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -92,9 +92,11 @@ const RaiseComplaint = ({userId}) => {
               <label>Complaint Purpose</label>
               <div className="checkbox-group">
                 {purposeOptions.map((option) => (
-                  <label 
-                    key={option} 
-                    className={`checkbox-label ${selectedOptions.includes(option) ? 'selected' : ''}`}
+                  <label
+                    key={option}
+                    className={`checkbox-label ${
+                      selectedOptions.includes(option) ? "selected" : ""
+                    }`}
                   >
                     <input
                       type="checkbox"
@@ -125,15 +127,31 @@ const RaiseComplaint = ({userId}) => {
         </div>
       ) : (
         <div className="success-card">
-                 <div className="success-icon">
-                 <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                    <circle className="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
-                    <path className="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
-                 </svg>
-               </div>
-                <h2>Complaint Submitted Successfully!</h2>
-              <p>Your complaint has been received. We will get back to you shortly.</p>
-             </div>
+          <div className="success-icon">
+            <svg
+              className="checkmark"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 52 52"
+            >
+              <circle
+                className="checkmark__circle"
+                cx="26"
+                cy="26"
+                r="25"
+                fill="none"
+              />
+              <path
+                className="checkmark__check"
+                fill="none"
+                d="M14.1 27.2l7.1 7.2 16.7-16.8"
+              />
+            </svg>
+          </div>
+          <h2>Complaint Submitted Successfully!</h2>
+          <p>
+            Your complaint has been received. We will get back to you shortly.
+          </p>
+        </div>
       )}
     </div>
   );

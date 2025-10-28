@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 
 import { motion, AnimatePresence } from "framer-motion";
 
-
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -234,7 +233,6 @@ const WaterUsageGraph = ({ userId }) => {
               </motion.ul>
             )}
           </AnimatePresence>
-
         </div>
       </div>
     </div>

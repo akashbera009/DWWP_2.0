@@ -168,7 +168,7 @@
   font-weight: 500;
   /* color: #488AEC !important; */
   /* color: #ffb86c !important;   */
-  color: #50fa7b !important; 
+  color: #50fa7b !important;
 }
 
 .month-header:hover {
@@ -255,9 +255,17 @@
 
 /* Animations */
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 184, 108, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(255, 184, 108, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 184, 108, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 184, 108, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 184, 108, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 184, 108, 0);
+  }
 }
 
 @media (max-width: 768px) {
@@ -266,22 +274,22 @@
     width: 100%;
     padding: 1rem;
   }
-  
+
   .paymentDashboard-container {
     width: 100%;
     margin: 0;
     padding: 1rem;
   }
-  
+
   .paymentDashboard-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .paymentDashboard-search-container {
     flex-direction: column;
   }
-  
+
   .paymentDashboard-search-bar {
     width: 100%;
     max-width: none;
@@ -293,15 +301,15 @@
 
 
 .recharge-card {
-  background: linear-gradient(145deg, rgba(72,138,236,0.1), rgba(16,22,45,0.4));
-  border: 1px solid rgba(72,138,236,0.2);
+  background: linear-gradient(145deg, rgba(72, 138, 236, 0.1), rgba(16, 22, 45, 0.4));
+  border: 1px solid rgba(72, 138, 236, 0.2);
   border-radius: 12px;
   padding: 1.5rem;
   backdrop-filter: blur(5px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   margin-top: 2rem;
   width: 70vw;
-  margin-left:20vw ;
+  margin-left: 20vw;
 }
 
 .rc-header {
@@ -331,8 +339,13 @@
   border-radius: 50%;
 }
 
-.status-dot.pending { background: #ffb86c; }
-.status-dot.completed { background: #50fa7b; }
+.status-dot.pending {
+  background: #ffb86c;
+}
+
+.status-dot.completed {
+  background: #50fa7b;
+}
 
 .rc-details {
   display: grid;
@@ -341,8 +354,10 @@
   margin-bottom: 1.5rem;
 }
 
-.rc-amount, .rc-due-date  , .rc-usage{
-  background: rgba(72,138,236,0.05);
+.rc-amount,
+.rc-due-date,
+.rc-usage {
+  background: rgba(72, 138, 236, 0.05);
   padding: 1rem;
   border-radius: 8px;
 }
@@ -374,7 +389,7 @@
 
 .rc-pay-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(72,138,236,0.3);
+  box-shadow: 0 4px 12px rgba(72, 138, 236, 0.3);
 }
 
 .loading-recharge {
@@ -391,16 +406,20 @@
 }
 
 html {
-  overflow-y: scroll; /* Force scrollbar to be visible */
+  overflow-y: scroll;
+  /* Force scrollbar to be visible */
 }
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px; /* Width of the scrollbar */
+  width: 10px;
+  /* Width of the scrollbar */
 }
 
 /* Track (the background) */
 ::-webkit-scrollbar-track {
-  background: #1e1e1e; /* Dark background */
+  background: #1e1e1e;
+  /* Dark background */
   border-radius: 10px;
 }
 
@@ -411,7 +430,7 @@ html {
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg,#3a3c54, #2d3250);
+  background: linear-gradient(45deg, #3a3c54, #2d3250);
 }
 
 
@@ -436,13 +455,13 @@ html {
 }
 
 .transaction-modal {
-  background: linear-gradient(145deg, rgba(7,16,45,0.95), rgba(58,60,84,0.95));
-  border: 1px solid rgba(72,138,236,0.2);
+  background: linear-gradient(145deg, rgba(7, 16, 45, 0.95), rgba(58, 60, 84, 0.95));
+  border: 1px solid rgba(72, 138, 236, 0.2);
   border-radius: 12px;
   padding: 2rem;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -451,7 +470,7 @@ html {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(72,138,236,0.2);
+  border-bottom: 1px solid rgba(72, 138, 236, 0.2);
   padding-bottom: 1rem;
 }
 
@@ -485,7 +504,7 @@ html {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: rgba(72,138,236,0.05);
+  background: rgba(72, 138, 236, 0.05);
   border-radius: 8px;
 }
 
@@ -506,7 +525,8 @@ html {
   justify-content: flex-end;
 }
 
-.download-button, .close-modal-button {
+.download-button,
+.close-modal-button {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -521,8 +541,10 @@ html {
 
 .transaction-close-modal-button {
   border-radius: 5px;
-  background: #e71a1a; /* Solid red */
-  color: white; /* White text for better contrast */
+  background: #e71a1a;
+  /* Solid red */
+  color: white;
+  /* White text for better contrast */
   border: 1px solid rgba(72, 138, 236, 0.2);
   padding: 8px 12px;
   font-weight: bold;
@@ -531,22 +553,25 @@ html {
 }
 
 .transaction-close-modal-button:hover {
-  background: #c91414; /* Slightly darker red on hover */
+  background: #c91414;
+  /* Slightly darker red on hover */
 }
 
 
 .download-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(72,138,236,0.3);
+  box-shadow: 0 4px 12px rgba(72, 138, 236, 0.3);
 }
 
 .close-modal-button:hover {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   color: #488AEC;
 }
+
 .no-results {
   text-align: center;
-  color: #ff4d4d; /* Soft red for visibility */
+  color: #ff4d4d;
+  /* Soft red for visibility */
   font-size: 1.2rem;
   font-weight: bold;
   margin: 20px 0;
@@ -563,11 +588,9 @@ html {
     opacity: 0;
     transform: translateY(-15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
-
-

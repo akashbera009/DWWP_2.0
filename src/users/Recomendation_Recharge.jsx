@@ -1,44 +1,39 @@
 import react from "react";
-import './Recomended_recharge.css';
+import "./Recomended_recharge.css";
 
 import { useNavigate } from "react-router-dom";
 
-const Recomended_recharge = ({price ,qty, type , descrip , icon}) => {
-          const naviagte=useNavigate()
+const Recomended_recharge = ({ price, qty, type, descrip, icon }) => {
+  const naviagte = useNavigate();
 
-const handelNevigation=()=>{
-          naviagte("/user/topup");
-
-}
+  const handelNevigation = () => {
+    naviagte("/user/topup");
+  };
   return (
     <>
       <div className="pricing-card">
-
         <div className="price-card-content">
-
-        <div className="title">
-                    <h3>Popular {type} Plan {icon}</h3>
-                    <p>{descrip}.</p>
+          <div className="title">
+            <h3>
+              Popular {type} Plan {icon}
+            </h3>
+            <p>{descrip}.</p>
           </div>
-          <br>
-          </br>
+          <br></br>
           <div className="price">
-                    <span class="price_value">₹ {price}<span style={{fontWeight:"0"}}> /</span></span>
-                    <span class="quantity">{qty}L</span>
+            <span class="price_value">
+              ₹ {price}
+              <span style={{ fontWeight: "0" }}> /</span>
+            </span>
+            <span class="quantity">{qty}L</span>
           </div>
-         
-        
-        <div className="pricing-footer" onClick={handelNevigation}>
-          <a className="pricing-button" href="#">
-            ✨Get Plan
-          </a>
+
+          <div className="pricing-footer" onClick={handelNevigation}>
+            <a className="pricing-button" href="#">
+              ✨Get Plan
+            </a>
+          </div>
         </div>
-
-
-        </div>
-
-          
-
       </div>
     </>
   );

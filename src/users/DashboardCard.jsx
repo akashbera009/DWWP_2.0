@@ -5,7 +5,7 @@ import { RiSpeedFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 
 import { db } from "../firebaseConfig"; // Adjust the path as necessary
-import { doc, onSnapshot , getDoc } from "firebase/firestore"; // Import onSnapshot
+import { doc, onSnapshot, getDoc } from "firebase/firestore"; // Import onSnapshot
 import {
   GiWaterDrop,
   GiMoneyStack,
@@ -28,18 +28,36 @@ const DashboardCard = ({ userId }) => {
     usagePercentage: 0,
     safeLimit: 70,
   });
-  const [todayUsage, setTodayUsage] = useState(  parseFloat(sessionStorage.getItem("todayUsage")) || 0);
+  const [todayUsage, setTodayUsage] = useState(
+    parseFloat(sessionStorage.getItem("todayUsage")) || 0
+  );
 
-  const [totalUsage, setTotalUsage] = useState(  parseFloat(sessionStorage.getItem("totalUsage")) || 0);
-  const [penaltyPrice, setPenaltyPrice] = useState(  parseFloat(sessionStorage.getItem("penaltyPrice")) || 0);
-  const [regularPrice, setRegularPrice] = useState( parseFloat(sessionStorage.getItem("regularPrice")) || 0);
-  let [regularLimit, setRegularLimit] = useState( parseFloat(sessionStorage.getItem("regularLimit")) || 0);
-  const [penaltyLimit, setPenaltyLimit] = useState( parseFloat(sessionStorage.getItem("penaltyLimit")) || 0); 
-  const [addedLimit, setAddedLimit] = useState( parseFloat(sessionStorage.getItem("addedLimit")) || 0); 
+  const [totalUsage, setTotalUsage] = useState(
+    parseFloat(sessionStorage.getItem("totalUsage")) || 0
+  );
+  const [penaltyPrice, setPenaltyPrice] = useState(
+    parseFloat(sessionStorage.getItem("penaltyPrice")) || 0
+  );
+  const [regularPrice, setRegularPrice] = useState(
+    parseFloat(sessionStorage.getItem("regularPrice")) || 0
+  );
+  let [regularLimit, setRegularLimit] = useState(
+    parseFloat(sessionStorage.getItem("regularLimit")) || 0
+  );
+  const [penaltyLimit, setPenaltyLimit] = useState(
+    parseFloat(sessionStorage.getItem("penaltyLimit")) || 0
+  );
+  const [addedLimit, setAddedLimit] = useState(
+    parseFloat(sessionStorage.getItem("addedLimit")) || 0
+  );
 
-  const [limitBYUser,  setLimitByUser] = useState( parseFloat(sessionStorage.getItem("limitBYUser")) || 0); // limit by user 
+  const [limitBYUser, setLimitByUser] = useState(
+    parseFloat(sessionStorage.getItem("limitBYUser")) || 0
+  ); // limit by user
 
-  const [maxLimit, setMaxLimit] = useState( parseFloat(sessionStorage.getItem("maxLimit")) || 0);
+  const [maxLimit, setMaxLimit] = useState(
+    parseFloat(sessionStorage.getItem("maxLimit")) || 0
+  );
 
   // States to track if each data point has been fetched
   const [isWaterFlowFetched, setIsWaterFlowFetched] = useState(false);
@@ -49,61 +67,61 @@ const DashboardCard = ({ userId }) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-
-
-
   useEffect(() => {
-    if (!userId) return; 
-  
-        // Get the current year and month dynamically
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0"); // Ensure two-digit format
-        // const day = String(now.getDate()); // Ensure two-digit format
-        const day = String(now.getDate()).padStart(2, "0");
-        const yearMonth = `${year}-${month}`; // Format: "YYYY-MM"
-        let today = `${year}-${month}-${day}`; // Format: "YYYY-MM"
-    
-        const usageDocRef = doc(db, "users", userId, "monthlyUsages", yearMonth);
+    if (!userId) return;
 
-    const unsubscribe = onSnapshot(usageDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        today = today.toString()
-        setTodayUsage(data[today] || 0 );
-  
-        // Sum all values from the document (each field is a date with a number)
-        const total = Object.entries(data)
-          .filter(([key]) => key.startsWith(yearMonth)) // Only include keys with "YYYY-MM"
-          .reduce((sum, [, usage]) => sum + (usage || 0), 0);
-  
-        const userLimit = data.limit || 0; // Fetch limit value directly
-        
-        setLimitByUser(userLimit);
-        sessionStorage.setItem("limitBYUser", userLimit);
-  
-        setTotalUsage(total);
-        sessionStorage.setItem("totalUsage", total);
+    // Get the current year and month dynamically
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // Ensure two-digit format
+    // const day = String(now.getDate()); // Ensure two-digit format
+    const day = String(now.getDate()).padStart(2, "0");
+    const yearMonth = `${year}-${month}`; // Format: "YYYY-MM"
+    let today = `${year}-${month}-${day}`; // Format: "YYYY-MM"
+
+    const usageDocRef = doc(db, "users", userId, "monthlyUsages", yearMonth);
+
+    const unsubscribe = onSnapshot(
+      usageDocRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          today = today.toString();
+          setTodayUsage(data[today] || 0);
+
+          // Sum all values from the document (each field is a date with a number)
+          const total = Object.entries(data)
+            .filter(([key]) => key.startsWith(yearMonth)) // Only include keys with "YYYY-MM"
+            .reduce((sum, [, usage]) => sum + (usage || 0), 0);
+
+          const userLimit = data.limit || 0; // Fetch limit value directly
+
+          setLimitByUser(userLimit);
+          sessionStorage.setItem("limitBYUser", userLimit);
+
+          setTotalUsage(total);
+          sessionStorage.setItem("totalUsage", total);
+        }
+        setIsWaterFlowFetched(true);
+      },
+      (error) => {
+        console.error("Error fetching water usage:", error);
       }
-      setIsWaterFlowFetched(true);
-    }, (error) => {
-      console.error("Error fetching water usage:", error);
-    });
-  
+    );
+
     // Cleanup function to unsubscribe when component unmounts
     return () => unsubscribe();
   }, [userId]);
-  
 
   useEffect(() => {
     if (!userId) return;
     // Listener for waterflowSensor
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0"); // Ensure two-digit format
-        const yearMonth = `${year}-${month}`; // Format: "YYYY-MM"
-      const unsubscribeWaterFlow = onSnapshot(
-      doc(db, "users", userId, "monthlyUsages", yearMonth) , 
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // Ensure two-digit format
+    const yearMonth = `${year}-${month}`; // Format: "YYYY-MM"
+    const unsubscribeWaterFlow = onSnapshot(
+      doc(db, "users", userId, "monthlyUsages", yearMonth),
       (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
@@ -111,20 +129,20 @@ const DashboardCard = ({ userId }) => {
 
           // Sum all field values (assuming they are numbers)
           const total = Object.entries(data)
-          .filter(([key]) => key.startsWith(yearMonth)) // Only include keys with "YYYY-MM"
-          .reduce((sum, [, usage]) => sum + (usage || 0), 0);
+            .filter(([key]) => key.startsWith(yearMonth)) // Only include keys with "YYYY-MM"
+            .reduce((sum, [, usage]) => sum + (usage || 0), 0);
 
-          const userLimit = Object.entries(data)
-          .find(([key]) => key === "limit"); // Find the key-value pair directly
-          
+          const userLimit = Object.entries(data).find(
+            ([key]) => key === "limit"
+          ); // Find the key-value pair directly
+
           const limitValue = userLimit ? Number(userLimit[1]) : 0; // Convert to number, default to 0
-          
+
           setLimitByUser(limitValue);
           sessionStorage.setItem("limitBYUser", limitValue);
-          
+
           setTotalUsage(total);
           sessionStorage.setItem("totalUsage", total);
-
         } else {
           console.log("No water usage data for this month.");
           setTotalUsage(0);
@@ -168,12 +186,11 @@ const DashboardCard = ({ userId }) => {
           const data = limitDocSnap.data();
           setPenaltyLimit(data.penalty || 0);
           setRegularLimit(data.regular || 100);
-          setMaxLimit(data.max) ; 
+          setMaxLimit(data.max);
 
           sessionStorage.setItem("regularLimit", data.regular);
           sessionStorage.setItem("penaltyLimit", data.penalty);
           sessionStorage.setItem("maxLimit", data.max);
-
 
           setIsLimitFetched(true);
           // console.log("Limits fetched: ", data);
@@ -196,35 +213,36 @@ const DashboardCard = ({ userId }) => {
     };
   }, [userId]);
 
+  // for the added limit
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const yearMonth = `${year}-${month}`;
 
-    // for the added limit 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const yearMonth = `${year}-${month}`;
+  const addonDocRef = doc(
+    db,
+    `users/${userId}/monthlyUsages/${yearMonth}/addon/addon_details`
+  );
+  // fetch added limit
+  useEffect(() => {
+    if (!userId) return;
 
-    const addonDocRef = doc(db, `users/${userId}/monthlyUsages/${yearMonth}/addon/addon_details`);
-    // fetch added limit 
-    useEffect(() => {
-      if (!userId) return;
-    
-      const fetchAddedLimit = async () => {
-        try {
+    const fetchAddedLimit = async () => {
+      try {
         const addonSnap = await getDoc(addonDocRef);
-          if (addonSnap.exists()) {
-            const addonData = addonSnap.data();
-            setAddedLimit(addonData.added_limit)
-          }else {
-            console.log("No added_limit document found.");
-          }
-        } catch (error) {
-          console.error("Error fetching addedLimit:", error);
+        if (addonSnap.exists()) {
+          const addonData = addonSnap.data();
+          setAddedLimit(addonData.added_limit);
+        } else {
+          console.log("No added_limit document found.");
         }
-      };
-    
-      fetchAddedLimit();
-    }, [userId,limitBYUser ]);
+      } catch (error) {
+        console.error("Error fetching addedLimit:", error);
+      }
+    };
 
+    fetchAddedLimit();
+  }, [userId, limitBYUser]);
 
   // check data is fetched or not ??
   useEffect(() => {
@@ -234,14 +252,13 @@ const DashboardCard = ({ userId }) => {
     }
   }, [isWaterFlowFetched, isPriceFetched, isLimitFetched]);
 
-  regularLimit = limitBYUser ; 
+  regularLimit = limitBYUser;
   const regularUsage = Math.min(totalUsage, regularLimit);
   const penaltyUsage =
     totalUsage > regularLimit ? totalUsage - regularLimit : 0;
 
   const regularPriceTotal = regularUsage * regularPrice;
   const penaltyPriceTotal = penaltyUsage * penaltyPrice;
-  
 
   const totalPrice = regularPriceTotal + penaltyPriceTotal;
 
@@ -278,33 +295,30 @@ const DashboardCard = ({ userId }) => {
     navigate("/user/complain");
   };
 
-
-
-
   // const isUsageExceeded = totalUsage >= maxLimit;
   // console.log(maxLimit , totalUsage , penaltyLimit);
 
-  
-const penaltyThreshold = regularLimit + penaltyLimit;        // 100 + 150 = 250
-const maxThreshold = penaltyThreshold + maxLimit;            // 250 + 400 = 650
+  const penaltyThreshold = regularLimit + penaltyLimit; // 100 + 150 = 250
+  const maxThreshold = penaltyThreshold + maxLimit; // 250 + 400 = 650
 
-const cappedUsage = Math.min(totalUsage, maxThreshold);   
-  
+  const cappedUsage = Math.min(totalUsage, maxThreshold);
+
   // const greenWidth = Math.min(totalUsage, regularLimit)||50;
   // const orangeWidth = Math.min(Math.max(totalUsage - regularLimit, 0), penaltyLimit - regularLimit)||20;
   // const redWidth = Math.min(Math.max(totalUsage - penaltyLimit, 0), maxLimit - penaltyLimit);
-  
-  const greenWidth = Math.min(cappedUsage, regularLimit); 
+
+  const greenWidth = Math.min(cappedUsage, regularLimit);
   // Up to 100
-  
-  const orangeWidth = Math.min(Math.max(cappedUsage - regularLimit, 0), penaltyLimit); 
+
+  const orangeWidth = Math.min(
+    Math.max(cappedUsage - regularLimit, 0),
+    penaltyLimit
+  );
   // Between 100–250
-  
-  const redWidth = Math.max(cappedUsage - penaltyThreshold, 0); 
+
+  const redWidth = Math.max(cappedUsage - penaltyThreshold, 0);
   // Between 250–650
-  const totalBarWidth = regularLimit + penaltyLimit + addedLimit ;
-
-
+  const totalBarWidth = regularLimit + penaltyLimit + addedLimit;
 
   return (
     <>
@@ -323,13 +337,13 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
               <div className="metric-content">
                 <span className="metric-label">Today </span>
                 <span className="metric-value">
-                  {isLoading ? "..." : todayUsage.toFixed(0) } L
+                  {isLoading ? "..." : todayUsage.toFixed(0)} L
                 </span>
               </div>
               <div className="metric-content">
                 <span className="metric-label">This month</span>
                 <span className="metric-value">
-                  {isLoading ? "..." : totalUsage.toFixed(2) } L
+                  {isLoading ? "..." : totalUsage.toFixed(2)} L
                 </span>
               </div>
             </div>
@@ -341,7 +355,7 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
               <div className="metric-content">
                 <span className="metric-label">Regular Price</span>
                 <span className="metric-value">
-                  ₹ {isLoading ? "..." :   regularPriceTotal.toFixed(2) }
+                  ₹ {isLoading ? "..." : regularPriceTotal.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -353,7 +367,7 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
               <div className="metric-content">
                 <span className="metric-label">Penalty</span>
                 <span className="metric-value" style={{ color: "#ff5252" }}>
-                ₹ {isLoading ? "..." : penaltyPriceTotal.toFixed(2) }
+                  ₹ {isLoading ? "..." : penaltyPriceTotal.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -365,53 +379,48 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
               <div className="metric-content">
                 <span className="metric-label">Total Price</span>
                 <span className="metric-value" style={{ color: "#4CAF50" }}>
-                  ₹ {isLoading ? "..." : totalPrice.toFixed(2) }
+                  ₹ {isLoading ? "..." : totalPrice.toFixed(2)}
                 </span>
               </div>
             </div>
           </div>
           {/* <p>{addedLimit}</p> */}
-        <div className="bar-containers">
-          {totalUsage < regularLimit ? (
-            <div className="bars">
-              <div
-                className="bar-greens"
-                style={{ width: `${(greenWidth / regularLimit) * 100}%` }}
-              ></div>
-            </div>
-          ) : (
-            <div className="bars">
-              <div
-                className="bar-greens"
-                style={{ width: `${(greenWidth / totalBarWidth) * 100}%` }}
-              ></div>
-              <div
-                className="bar-oranges"
-                style={{ width: `${(orangeWidth / totalBarWidth) * 100}%` }}
-              ></div>
-              <div
-                className="bar-reds"
-                style={{ width: `${(redWidth / totalBarWidth) * 100}%` }}
-              ></div>
-            </div>
-          )}
-        </div>
-
-
-              
-        </div>
-
-        <div className="network_connnection">
-          <Online_Status userId= {userId} />
-          <br></br>
-          <div className="box">
-            <Rechargecard userId={userId}/>
+          <div className="bar-containers">
+            {totalUsage < regularLimit ? (
+              <div className="bars">
+                <div
+                  className="bar-greens"
+                  style={{ width: `${(greenWidth / regularLimit) * 100}%` }}
+                ></div>
+              </div>
+            ) : (
+              <div className="bars">
+                <div
+                  className="bar-greens"
+                  style={{ width: `${(greenWidth / totalBarWidth) * 100}%` }}
+                ></div>
+                <div
+                  className="bar-oranges"
+                  style={{ width: `${(orangeWidth / totalBarWidth) * 100}%` }}
+                ></div>
+                <div
+                  className="bar-reds"
+                  style={{ width: `${(redWidth / totalBarWidth) * 100}%` }}
+                ></div>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="password-change">
-          
+        <div className="network_connnection">
+          <Online_Status userId={userId} />
+          <br></br>
+          <div className="box">
+            <Rechargecard userId={userId} />
+          </div>
         </div>
+
+        <div className="password-change"></div>
       </div>
 
       <div className="second-row">
@@ -446,7 +455,7 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
             <div className="third-row-child">
               <Recomended_recharge
                 price={20}
-                qty = {50}
+                qty={50}
                 type={"Summar"}
                 descrip={
                   " Enjoy this Summar with Our special Summar plan with that will be helpfull for you and Get water easily "
@@ -455,7 +464,7 @@ const cappedUsage = Math.min(totalUsage, maxThreshold);
               />
               <Recomended_recharge
                 price={150}
-                qty = {300}
+                qty={300}
                 type={"Festive"}
                 descrip={
                   "Enjoy this Festival with Our special Summar plan with that will be helpfull for you and Get water easily "
