@@ -4,7 +4,7 @@ import { FaChevronCircleRight } from "react-icons/fa";
 import { RiSpeedFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 
-import { db } from "../firebaseConfig"; // Adjust the path as necessary
+import { db } from "../../firebaseConfig"; // Adjust the path as necessary
 import { doc, onSnapshot, getDoc } from "firebase/firestore"; // Import onSnapshot
 import {
   GiWaterDrop,
@@ -12,12 +12,11 @@ import {
   GiPayMoney,
   GiWaterTank,
 } from "react-icons/gi";
-import { MdSpeed } from "react-icons/md";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import "./DashboardCard.css";
 import Online_Status from "./Online_Status";
-import Rechargecard from "./History_dash";
-import Recomended_recharge from "./Recomendation_Recharge";
+import Rechargecard from "../Analytics/History_dash";
+import Recomended_recharge from "../subscription-payments/Recomendation_Recharge";
 
 const DashboardCard = ({ userId }) => {
   const [waterData, setWaterData] = useState({
@@ -66,6 +65,9 @@ const DashboardCard = ({ userId }) => {
   const [loading, setLoading] = useState(true); // Loading state
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const [alert90Sent, setAlert90Sent] = useState(false);
+  const [alert100Sent, setAlert100Sent] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -143,6 +145,30 @@ const DashboardCard = ({ userId }) => {
 
           setTotalUsage(total);
           sessionStorage.setItem("totalUsage", total);
+
+          const safeTotalUsage = total < 0 ? 0 : total; // handle device -1 readings
+          const safeLimit = limitValue || 0; // current user limit
+
+          // Usage percentage
+          const usagePercent = safeLimit
+            ? (safeTotalUsage / safeLimit) * 100
+            : 0;
+
+          // --- 90% alert ---
+          if (usagePercent >= 90 && !alert90Sent) {
+            createSmsQueueEntry(userId, { messageType: "limit_90" });
+            setAlert90Sent(true);
+          }
+
+          // --- 100% alert ---
+          if (safeTotalUsage >= safeLimit && !alert100Sent) {
+            createSmsQueueEntry(userId, { messageType: "limit_exceeded" });
+            setAlert100Sent(true);
+          }
+
+          // --- Reset flags if usage drops below thresholds (after refill) ---
+          if (usagePercent < 90) setAlert90Sent(false);
+          if (safeTotalUsage < safeLimit) setAlert100Sent(false);
         } else {
           console.log("No water usage data for this month.");
           setTotalUsage(0);
@@ -324,7 +350,7 @@ const DashboardCard = ({ userId }) => {
     <>
       <div className="dashboardCard_Online-con">
         <div className="dashboard-card">
-          <div className="card-header">
+          <div className="card-header-user">
             <h2 className="dashboard-card-title">User Dashboard</h2>
           </div>
 
@@ -335,13 +361,14 @@ const DashboardCard = ({ userId }) => {
               </div>
 
               <div className="metric-content">
-                <span className="metric-label">Today </span>
+                <span className="metric-label2">Today </span>
                 <span className="metric-value">
                   {isLoading ? "..." : todayUsage.toFixed(0)} L
                 </span>
               </div>
+              <div className="right-border"></div>
               <div className="metric-content">
-                <span className="metric-label">This month</span>
+                <span className="metric-label3">This month</span>
                 <span className="metric-value">
                   {isLoading ? "..." : totalUsage.toFixed(2)} L
                 </span>
@@ -425,16 +452,16 @@ const DashboardCard = ({ userId }) => {
 
       <div className="second-row">
         <div className="com-box">
-          <p class="text">Limit:</p>
-          <p class="price-value"> {regularLimit} L</p>
+          <p className="text">Limit:</p>
+          <p className="price-value"> {regularLimit} L</p>
         </div>
         <div className="com-box">
-          <p class="text">Price/Ltr :</p>
-          <p class="price-value">₹ {regularPrice}</p>
+          <p className="text">Price/Ltr :</p>
+          <p className="price-value">₹ {regularPrice}</p>
         </div>
         <div className="com-box">
-          <p class="text">Penalty/Ltr :</p>
-          <p class="price-value">₹ {penaltyPrice}</p>
+          <p className="text">Penalty/Ltr :</p>
+          <p className="price-value">₹ {penaltyPrice}</p>
         </div>
       </div>
 
@@ -442,7 +469,7 @@ const DashboardCard = ({ userId }) => {
 
       <div className="third_row_whole_con">
         <div className="third_row_left-con">
-          <h3 class="recomended-title">
+          <h3 className="recomended-title">
             Recomended For You{" "}
             <FaChevronCircleRight
               style={{ position: "relative", left: "10px" }}
@@ -491,7 +518,7 @@ const DashboardCard = ({ userId }) => {
 
             <div className="back-glass-effect">
               <div className="quick_access_gate" onClick={goToGate}>
-                <img src="https://i.ibb.co/tpwL7Pyv/valve.png" />
+                <img src="https://i.ibb.co/8Dbs12MF/button.png" />
                 <div className="head">
                   <p>Control Gate</p>
                 </div>

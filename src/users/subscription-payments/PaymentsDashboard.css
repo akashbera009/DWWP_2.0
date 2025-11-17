@@ -497,6 +497,7 @@ html {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  background-color: #488AEC;
 }
 
 .detail-row {
@@ -593,4 +594,9 @@ html {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.chevronDown{
+  position: relative;
+  top: 10px ;
 }

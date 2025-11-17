@@ -101,27 +101,96 @@ An IoT-based solution for intelligent water management with real-time monitoring
 ## Firebase Data Structure
 
 ```plaintext
-users/ [Collection]
-└── {userEmail}/ [Document]
-    ├── servoState: boolean
-    ├── lastSeen: timestamp
-    ├── notification: string
-    ├── userDetails: array
-    └── monthlyUsages/ [Subcollection]
-        └── {YYYY-MM}/ [Document]
-            ├── isMonthFinish: boolean
-            ├── limitExceeded: boolean
-            ├── dailyUsage: map<date, number>
-            ├── limit: number
-            └── payment/ [Subcollection]
-                └── payment_Details:
-                    ├── paid: boolean
-                    ├── date: string
-                    └── id: string
-            └── addon/ [Subcollection]
-                └── addon_details:
-                    ├── added-limit: number
-                    └── used: number
+  users/ [Collection]
+  └── {userEmail}/ [Document]
+      ├── servoState: boolean
+      ├── lastSeen: timestamp
+      ├── notification: string
+      ├── userDetails: <map> {
+      │   ├── fullName: string
+      │   ├── mobileNo: string
+      │   ├── emailId: string (optional)
+      │   ├── address: string
+      │   ├── accountNumber: string
+      │   ├── consumerNumber: string
+      │   ├── meterNumber: string
+      │   └── supplyZone: string
+      │   }
+      ├── wifi_pass: string
+      ├── wifi_ssid: string
+      └── monthlyUsages/ [Subcollection]
+          └── {YYYY-MM}/ [Document]
+              ├── {YYYY-MM-DD}: number (daily water usage in liters)
+              ├── {YYYY-MM-DD}: number
+              ├── limit: number (user's monthly limit)
+              ├── isMonthFinish: boolean
+              ├── limitExceeded: boolean
+              │
+              ├── payment/ [Subcollection]
+              │   └── payment_details/ [Document]
+              │       ├── amount: number
+              │       ├── date: timestamp (ISO string)
+              │       ├── forMonth: string (YYYY-MM)
+              │       ├── razor_pay_id: string
+              │       ├── status: string ("pending" | "Completed")
+              │       └── timeStamp: timestamp (ISO string)
+              │
+              └── addon/ [Subcollection]
+                  └── {addon_id}/ [Document] (auto-generated or razor_pay_id)
+                      ├── addon_date: timestamp (ISO string)
+                      ├── amount: number
+                      ├── quantityDone: number (liters purchased)
+                      ├── refill: number (how many times refilled)
+                      ├── razor_pay_id: string
+                      └── status: string (always "Completed")
+
+  admin/ [Collection]
+  └── {adminDoc}/ [Document]
+   ├── 01ListOfAdmin: array
+   │ ├── 0: "admin@gmail.com"
+   │ └── 1: "admin2@gmail.com"
+   │
+   ├── broadcast: map {
+   │ ├── msg: array [
+   │ │ 0: map {
+   │ │   icon: "💳"
+   │ │   message: "Friendly reminder: Your water bill payment is due in 3 days."
+   │ │   timestamp: "2025-04-07T19:13:13.088Z"
+   │ │   }
+   │ │ ]
+   │ └── timestamp: "2025-04-08T00:46:29.000Z" (April 8, 2025 at 12:46:29 AM UTC+5:30)
+   │ }
+   ├── limit: map {
+   │ ├── max: number
+   │ ├── penalty: number
+   │ └── regular: number
+   │ }
+   │
+   ├── price: map {
+   │ ├── penaltyPrice: number
+   │ └── regularPrice: number
+   │ }
+   │
+
+  smsQueue/ [Collection]
+    └── sms_ab_202511091059382/ [Document]  
+        ├── attempts: 0
+        ├── createdAt: "2025-11-09T10:59:38.258Z"
+        ├── message: "Dear Akash Bera, addon of 80L purchased for Rs.50. Payment ID: pay_Rdck9DTiXfX5vm. Your water supply continues uninterrupted."
+        ├── messageType: "addon"
+        ├── metadata: {
+        │     amount: 50,
+        │     forMonth: null,
+        │     paymentId: "pay_Rdck9DTiXfX5vm",
+        │     refillAmount: 80,
+        │     mobileNo: "9876543210",
+        │     referenceId: "users/ab@gmail.com/monthlyUsages/2025-11/addon/addon_details"
+        │ }
+        ├── sentAt: "November 9, 2025 at 10:35:06 PM UTC+5:30"
+        ├── status: "sent"
+        └── userId: "ab@gmail.com"
+
+
 ```
 
 ---
@@ -201,4 +270,15 @@ MIT License - See [LICENSE](LICENSE) for details.
 ---
 
 
+pub sub sytstem for the message system (we have to add this in the readme file )
+
+Classic Pub/Sub Pattern:
+Publisher → Message Queue → Subscriber(s)
+   ↓             ↓              ↓
+Payment      smsQueue       ESP32
+System       (Firebase)     (Worker)
+
+Your System:
+Payment Event → smsQueue Collection → ESP32 reads & sends SMS
+   (Publisher)     (Message Queue)        (Subscriber/Consumer)
 

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { MdSignalWifi1BarLock } from "react-icons/md";
 import './User_section_settings.css';
-import Online_Status from './Online_Status';
+import Online_Status from './DashBoard/Online_Status';
 
 const UserSettingsSection = ({ userId }) => {
   if (!userId) {

@@ -1,0 +1,64 @@
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f070;
+}
+
+.notificatio-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: auto;
+}
+
+.notification-icon {
+  display: flex;
+  align-items: center;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* background-color:#64748b; */
+  /* background: linear-gradient(135deg, #488aec, #5b9ff5); */
+   background: rgba(72, 138, 236, 0.1);
+    border: 1px solid rgba(72, 138, 236, 0.2);
+  min-width: 150px;
+  border-radius: 8px;
+  padding-left:10px;
+  padding-right:10px;
+  padding-top:5px;
+  padding-bottom:5px;
+  cursor: pointer;
+}
+
+.user-icon {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.content-area {
+  /* flex-grow: 1; */
+  /* display: flex; */
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+
+.top-up-cards {
+  display: flex;
+}
+
+.servo-section {
+  width: 100%;
+  /* background-color: red; */
+}

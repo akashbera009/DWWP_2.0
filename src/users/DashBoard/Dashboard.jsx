@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { auth } from "../firebaseConfig"; // Import Firebase auth
+import { auth } from "../../firebaseConfig"; // Import Firebase auth
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom"; // If using React Router
 import {
@@ -22,12 +22,12 @@ import {
 import { CiSettings } from "react-icons/ci";
 import "./Dashboard.css";
 import { MdOutlineLogout } from "react-icons/md";
-import ToggleSwitch from "./ToggleSwitch";
-import Servo_Control from "./Servo_Control";
+import ToggleSwitch from "../ServoConstrol/ToggleSwitch";
+import Servo_Control from "../ServoConstrol/Servo_Control";
 import Online_Status from "./Online_Status";
-import Graph from "./Graph";
+import Graph from "../Analytics/Graph";
 import { NavLink, Outlet } from "react-router-dom";
-import TopBar from "./TopBar";
+import TopBar from "../TopBar";
 
 const Sidebar = () => {
   const navigate = useNavigate(); // Navigate after logout

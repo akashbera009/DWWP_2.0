@@ -3,9 +3,9 @@ import "./History_dash.css";
 import { useNavigate } from "react-router-dom";
 import { MdAutoGraph } from "react-icons/md";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebaseConfig"; // update this import as per your project
+import { db } from "../../firebaseConfig"; // update this import as per your project
 // import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebaseConfig"; // update this import too
+import { auth } from "../../firebaseConfig"; // update this import too
 import { use } from "react";
 
 const Rechargecard = ({ userId }) => {

@@ -21,11 +21,11 @@ const Recomended_recharge = ({ price, qty, type, descrip, icon }) => {
           </div>
           <br></br>
           <div className="price">
-            <span class="price_value">
+            <span className="price_value">
               ₹ {price}
               <span style={{ fontWeight: "0" }}> /</span>
             </span>
-            <span class="quantity">{qty}L</span>
+            <span className="quantity">{qty}L</span>
           </div>
 
           <div className="pricing-footer" onClick={handelNevigation}>

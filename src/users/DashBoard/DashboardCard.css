@@ -50,7 +50,7 @@
   margin: 0 auto;
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   width: 700px;
-  height: 400px;
+  /* height: 350px; */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -82,7 +82,6 @@
 
 .bar-greens {
   background-color: #4caf50;
-  /* Green */
   transition: width 0.3s ease;
   height: 100%;
 }
@@ -131,10 +130,16 @@
     transform: rotate(45deg) translateX(50%);
   }
 }
+.card-header-user{
+    /* font-size: 1.3rem;
+  margin: 0; */
+  /* background-color: #00c853; */
+}
 
 .dashboard-card-title {
   font-size: 2rem;
-  margin-bottom: 2rem;
+  /* margin-bottom: 2rem; */
+  margin: 0 auto;
   font-weight: 700;
   color: #fff;
   text-align: center;
@@ -142,7 +147,7 @@
   letter-spacing: 2px;
   position: relative;
   padding-bottom: 1rem;
-  left: 12vw;
+  /* left: 12vw; */
 }
 
 .dashboard-card-title::after {
@@ -283,6 +288,21 @@
 .metric-label {
   font-size: 0.95rem;
   color: #a0a0a0;
+  letter-spacing: 0.5px;
+}
+.right-border{
+  height: 100%;
+  border-right: 2px dotted #40c4ff; 
+}
+
+.metric-label2 {
+  font-size: 1.25rem;
+  color: #40c4ff;
+  letter-spacing: 0.5px;
+}
+.metric-label3 {
+  font-size: 1.25rem;
+  color: #b2ebf2;
   letter-spacing: 0.5px;
 }
 

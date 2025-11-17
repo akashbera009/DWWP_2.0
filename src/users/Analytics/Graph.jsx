@@ -15,7 +15,7 @@ import {
 } from "chart.js";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 
-import { db } from "../firebaseConfig"; // Adjust the path as necessary
+import { db } from "../../firebaseConfig"; // Adjust the path as necessary
 import { doc, onSnapshot, getDoc } from "firebase/firestore"; // Import onSnapshot
 
 ChartJS.register(

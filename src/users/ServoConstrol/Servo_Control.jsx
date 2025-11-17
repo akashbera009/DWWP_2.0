@@ -4,7 +4,7 @@ import "./Servo_Control.css";
 import { db } from "/src/firebaseConfig.js";
 import { doc, onSnapshot } from "firebase/firestore";
 import ToggleSwitch from "./ToggleSwitch";
-
+ import DirectChangeDB from "../../utils/DirectChangeDB";
 const Servo_Control = ({ userId }) => {
   const [lastSeen, setLastSeen] = useState(null);
   const [status, setStatus] = useState("Loading...");
@@ -102,6 +102,7 @@ const Servo_Control = ({ userId }) => {
           }`}
         >
           {status}
+          {/* <DirectChangeDB userId = {userId}/> */}
         </div>
 
         {status !== "🟢 Online" && (

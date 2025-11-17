@@ -7,7 +7,6 @@
   --accent-hue: 22deg;
   --duration: 0.6s;
   --easing: cubic-bezier(0, 0, 0, 1);
-  /* height: 10vw; */
   margin: 2rem 1rem;
 }
 
@@ -129,8 +128,6 @@
     inset 20px 20px 10px hsl(var(--hue) 20% 15% / 100%),
     inset 20px 20px 15px hsl(var(--hue) 20% 45% / 100%);
 }
-
-.message-section {}
 
 .limit-message {
   margin-top: 10px;

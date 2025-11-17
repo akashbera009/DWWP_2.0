@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { writeBatch } from "firebase/firestore";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaGoogle } from "react-icons/fa";
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signInWithPopup, 
-  GoogleAuthProvider 
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
@@ -27,11 +27,11 @@ const New_dwwp_auth = () => {
     name: "",
     phoneNumber: "",
     aadharNumber: "",
-    address: ""
+    address: "",
   });
-const gobackToLand=()=>{
-  navigate("/");
-}
+  const gobackToLand = () => {
+    navigate("/");
+  };
   const images = [
     "https://media.istockphoto.com/id/1214284146/photo/drought-and-water-scarcity.jpg?s=612x612&w=0&k=20&c=b9dbt8NTr9W8otrqnPynmpcBZAZaQ1XAYImcKbeY-yI=",
     "https://www.bepure.store/cdn/shop/articles/Bepure-Blog-Water-Crisis-In-India.jpg?v=1639574124",
@@ -44,25 +44,24 @@ const gobackToLand=()=>{
 
   const showPopup = (message) => {
     setPopupMessage(message);
-    setTimeout(() => setPopupMessage(''), 3000);
+    setTimeout(() => setPopupMessage(""), 3000);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Start loader and set minimum display time
     setLoading(true);
     const minLoaderTime = 5000; // 4 seconds
-    
+
     try {
       const authPromise = isLogin ? handleLogin() : handleRegister();
-      
+
       // Wait for either authentication or minimum loader time
       await Promise.all([
         authPromise,
-        new Promise(resolve => setTimeout(resolve, minLoaderTime))
+        new Promise((resolve) => setTimeout(resolve, minLoaderTime)),
       ]);
-      
     } catch (error) {
       // Error handling remains the same
     } finally {
@@ -75,15 +74,15 @@ const gobackToLand=()=>{
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
       const userEmail = auth.currentUser?.email;
-      
-      if (!userEmail) throw new Error('Authentication failed');
-      
-      const adminDoc = await getDoc(doc(db, 'admin', '01ListOfAdmin'));
+
+      if (!userEmail) throw new Error("Authentication failed");
+
+      const adminDoc = await getDoc(doc(db, "admin", "01ListOfAdmin"));
       if (adminDoc.exists()) {
         const isAdmin = adminDoc.data().admins.includes(userEmail);
-        navigate(isAdmin ? '/newadmin/admin_Dashboard' : '/user/dashboard');
+        navigate(isAdmin ? "/newadmin/admin_Dashboard" : "/user/dashboard");
       } else {
-        navigate('/user/dashboard');
+        navigate("/user/dashboard");
       }
     } catch (error) {
       showPopup(`Login Error: ${error.message}`);
@@ -97,83 +96,102 @@ const gobackToLand=()=>{
     try {
       // 1. Create Firebase Authentication user
       const userCredential = await createUserWithEmailAndPassword(
-        auth, 
-        formData.email, 
+        auth,
+        formData.email,
         formData.password
       );
       const userEmail = userCredential.user.email;
-  
+
       // 2. Check if user document already exists in Firestore
-      const userDocRef = doc(db, 'users', userEmail);
+      const userDocRef = doc(db, "users", userEmail);
       const userDoc = await getDoc(userDocRef);
-      
+
       if (userDoc.exists()) {
-        throw new Error('User document already exists in Firestore');
+        throw new Error("User document already exists in Firestore");
       }
-  
+
       // 3. Handle admin role assignment
       if (role === "authority") {
-        const adminDocRef = doc(db, 'admin', '01ListOfAdmin');
+        const adminDocRef = doc(db, "admin", "01ListOfAdmin");
         const adminDoc = await getDoc(adminDocRef);
-        
+
         const admins = adminDoc.exists() ? adminDoc.data().admins : [];
         if (admins.includes(userEmail)) {
-          throw new Error('User is already registered as admin');
+          throw new Error("User is already registered as admin");
         }
-        
-        await setDoc(adminDocRef, { 
-          admins: [...admins, userEmail] 
-        }, { merge: true });
+
+        await setDoc(
+          adminDocRef,
+          {
+            admins: [...admins, userEmail],
+          },
+          { merge: true }
+        );
       }
-  
+
       // 4. Create user document
       await setDoc(userDocRef, {
         userDetails: [
           formData.name,
           formData.phoneNumber,
           formData.aadharNumber,
-          formData.address
+          formData.address,
         ],
         role: role,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
-  
+
       // 5. Create subcollections
-      const collections = ['currentMonth', 'jan24', 'feb24', 'mar24', 'apr24', 
-        'may24', 'jun24', 'jul24', 'aug24', 'sep24', 'oct24', 'nov24', 'dec24'];
-      
+      const collections = [
+        "currentMonth",
+        "jan24",
+        "feb24",
+        "mar24",
+        "apr24",
+        "may24",
+        "jun24",
+        "jul24",
+        "aug24",
+        "sep24",
+        "oct24",
+        "nov24",
+        "dec24",
+      ];
+
       const batch = writeBatch(db);
-      
+
       for (const collection of collections) {
-        const monthRef = doc(db, 'users', userEmail, collection, 'default');
+        const monthRef = doc(db, "users", userEmail, collection, "default");
         batch.set(monthRef, {
           servoControl: { servoState: false },
           waterflowSensor: { totalusages: 0 },
-          paidStatus: { 
-            paid: false, 
-            paid_date: '', 
-            razorpay_payment_id: '' 
-          }
+          paidStatus: {
+            paid: false,
+            paid_date: "",
+            razorpay_payment_id: "",
+          },
         });
       }
-      
+
       await batch.commit();
-  
-      showPopup('Registration successful!');
-      navigate(role === "authority" ? "/newadmin/admin_Dashboard" : "/user/dashboard");
+
+      showPopup("Registration successful!");
+      navigate(
+        role === "authority" ? "/newadmin/admin_Dashboard" : "/user/dashboard"
+      );
     } catch (error) {
-      console.error('Registration Error:', error);
-      
+      console.error("Registration Error:", error);
+
       // Handle specific error cases
       let message = error.message;
-      if (error.code === 'auth/email-already-in-use') {
-        message = 'Email is already registered!';
-      } else if (error.message.includes('already registered as admin')) {
-        message = 'User is already an admin!';
+      if (error.code === "auth/email-already-in-use") {
+        message = "Email is already registered!";
+      } else if (error.message.includes("already registered as admin")) {
+        message = "User is already an admin!";
       }
-      
+
       showPopup(`Registration Error: ${message}`);
-      
+
       // Delete Firebase user if Firestore operations failed
       if (auth.currentUser) {
         await auth.currentUser.delete();
@@ -190,34 +208,50 @@ const gobackToLand=()=>{
       const user = result.user;
       const email = user.email;
 
-      const userDocRef = doc(db, 'users', email);
+      const userDocRef = doc(db, "users", email);
       if (!(await getDoc(userDocRef)).exists()) {
         await setDoc(userDocRef, {
-          userDetails: [user.displayName, '', '', '']
+          userDetails: [user.displayName, "", "", ""],
         });
 
-        const collections = ['currentMonth', 'jan24', 'feb24', 'mar24', 'apr24', 
-          'may24', 'jun24', 'jul24', 'aug24', 'sep24', 'oct24', 'nov24', 'dec24'];
-        
+        const collections = [
+          "currentMonth",
+          "jan24",
+          "feb24",
+          "mar24",
+          "apr24",
+          "may24",
+          "jun24",
+          "jul24",
+          "aug24",
+          "sep24",
+          "oct24",
+          "nov24",
+          "dec24",
+        ];
+
         for (const collection of collections) {
-          const userColRef = doc(db, 'users', email, collection);
-          await setDoc(userColRef, { 
+          const userColRef = doc(db, "users", email, collection);
+          await setDoc(userColRef, {
             servoControl: { servoState: false },
             waterflowSensor: { totalusages: 0 },
-            paidStatus: { paid: false }
+            paidStatus: { paid: false },
           });
         }
       }
 
-      const adminDoc = await getDoc(doc(db, 'admin', '01ListOfAdmin'));
+      const adminDoc = await getDoc(doc(db, "admin", "01ListOfAdmin"));
       if (adminDoc.exists()) {
         const isAdmin = adminDoc.data().admins.includes(email);
-        if ((role === "user" && isAdmin) || (role === "authority" && !isAdmin)) {
-          throw new Error('Role mismatch detected');
+        if (
+          (role === "user" && isAdmin) ||
+          (role === "authority" && !isAdmin)
+        ) {
+          throw new Error("Role mismatch detected");
         }
-        navigate(isAdmin ? '/newadmin/admin_Dashboard' : '/user/dashboard');
+        navigate(isAdmin ? "/newadmin/admin_Dashboard" : "/user/dashboard");
       } else {
-        navigate('/user/dashboard');
+        navigate("/user/dashboard");
       }
     } catch (error) {
       showPopup(`Google Login Error: ${error.message}`);
@@ -226,17 +260,15 @@ const gobackToLand=()=>{
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % images.length);
+      setCurrentSlide((prev) => (prev + 1) % images.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="new_dwwp_auth-container">
-       
-
-       {/* Add loader overlay */}
-       {loading && (
+      {/* Add loader overlay */}
+      {loading && (
         <div className="loader-overlay">
           <div className="loading-wave">
             <div className="loading-bar"></div>
@@ -247,14 +279,17 @@ const gobackToLand=()=>{
         </div>
       )}
       <div className="new_dwwp_auth-sub-con">
-      <button className="back_to_land" onClick={gobackToLand}><IoMdArrowRoundBack size={"20px"} style={{position:"relative", "top":"0.5vh"}} /> Back</button>
-        
+        <button className="back_to_land" onClick={gobackToLand}>
+          <IoMdArrowRoundBack
+            size={"25px"}
+            style={{ marginRight: 10 }}
+          />{" "}
+          Back
+        </button>
+
         {/* Image Slider Section */}
         <div className="new_dwwp_auth-slider">
-       
-         
           <AnimatePresence mode="wait">
-        
             <motion.img
               key={currentSlide}
               src={images[currentSlide]}
@@ -292,7 +327,9 @@ const gobackToLand=()=>{
               User
             </button>
             <button
-              className={`new_dwwp_auth-btn ${role === "authority" ? "active" : ""}`}
+              className={`new_dwwp_auth-btn ${
+                role === "authority" ? "active" : ""
+              }`}
               onClick={() => setRole("authority")}
             >
               Authority
@@ -382,7 +419,7 @@ const gobackToLand=()=>{
 
           <div className="new_dwwp_auth-divider">or continue with</div>
           <br></br>
-          <button 
+          <button
             className="new_dwwp_auth-social-btn google"
             onClick={handleGoogleLogin}
           >
@@ -391,9 +428,7 @@ const gobackToLand=()=>{
           </button>
 
           {popupMessage && (
-            <div className="new_dwwp_auth-popup">
-              {popupMessage}
-            </div>
+            <div className="new_dwwp_auth-popup">{popupMessage}</div>
           )}
         </motion.div>
       </div>

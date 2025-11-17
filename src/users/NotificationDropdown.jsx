@@ -56,7 +56,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
           notifications.map((notification, index) => (
             <div key={index} className="user-notification-item">
               <div className="user-notification-icon">
-                <span>{notification.icon || "🔔"}</span>
+                <span>{notification.icon || "🔔"}</span> 
               </div>
               <div className="user-notification-content">
                 <p>{notification.message || "No message"}</p>
@@ -77,5 +77,6 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     </div>
   );
 };
+
 
 export default NotificationDropdown;

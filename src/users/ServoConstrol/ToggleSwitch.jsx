@@ -1,5 +1,5 @@
 import React, { useState , useEffect } from "react";
-import { db } from '../firebaseConfig';  // Adjust the path as necessary
+import { db } from '../../firebaseConfig';  // Adjust the path as necessary
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore';  // Import updateDoc for updating fields
 import "./ToggleSwitch.css"; // Assuming you will add the CSS separately or inline.
 

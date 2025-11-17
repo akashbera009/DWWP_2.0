@@ -6,14 +6,16 @@ import {
   getDocs,
   doc,
   getDoc,
-  updateDoc,
+  setDoc,
   onSnapshot,
 } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import { handlePayment } from "../utils/razorpayPayment";
-import { downloadPDF } from "../utils/downloadPDF";
+import { db } from "../../firebaseConfig";
+import { handlePayment } from "../../utils/razorpayPayment";
+import { downloadPDF } from "../../utils/downloadPDF";
 import "./PaymentsDashboard.css";
-import Loader from "../Loader/Loader";
+import { createSmsQueueEntry } from "../../utils/smsQueueHelper";
+import Loader from "../../Loader/Loader";
+
 
 const PaymentsDashboard = ({ userId }) => {
   const [transactions, setTransactions] = useState([]);
@@ -22,9 +24,10 @@ const PaymentsDashboard = ({ userId }) => {
   const [filterStatus, setFilterStatus] = useState("All");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
-
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // ✅ Trigger for manual refresh
 
+  // ✅ Optimized fetchTransactions - removed unnecessary callback wrapper
   const fetchTransactions = useCallback(async (userEmail) => {
     try {
       setLoading(true);
@@ -58,29 +61,25 @@ const PaymentsDashboard = ({ userId }) => {
         }
 
         // Fetch addon details
-        const addonDocRef = doc(
+        const addonCollectionRef = collection(
           db,
-          `users/${userEmail}/monthlyUsages/${yearMonth}/addon/addon_details`
+          `users/${userEmail}/monthlyUsages/${yearMonth}/addon`
         );
-        const addonSnap = await getDoc(addonDocRef);
+        const addonSnap = await getDocs(addonCollectionRef);
 
-        if (addonSnap.exists()) {
-          const addonData = addonSnap.data();
-          const transactionsToAdd = (addonData.razor_pay_id || []).map(
-            (id, index) => ({
-              id: id || "N/A",
-              date:
-                (addonData.timeStamp || [])[index] || new Date().toISOString(),
-              month: yearMonth,
-              type: "Addon",
-              amount: `₹${(addonData.amount || [])[index] || 0}`,
-              qty: `${(addonData.quantityDone || [])[index] || 0}`,
-              status: "Completed",
-            })
-          );
-
-          fetchedTransactions.push(...transactionsToAdd);
-        }
+        addonSnap.forEach((addonDoc) => {
+          const addonData = addonDoc.data();
+          fetchedTransactions.push({
+            id: addonData.razor_pay_id || addonDoc.id,
+            date: addonData.addon_date || new Date().toISOString(),
+            month: yearMonth,
+            type: "Addon",
+            amount: `₹${addonData.amount || 0}`,
+            qty: addonData.quantityDone || 0,
+            refill: addonData.refill || 0,
+            status: "Completed",
+          });
+        });
       }
 
       // Sort transactions by date descending
@@ -94,32 +93,31 @@ const PaymentsDashboard = ({ userId }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, []); // ✅ No dependencies - stable function
 
+  // ✅ Fetch on mount and when refreshTrigger changes
   useEffect(() => {
     if (userId) {
       fetchTransactions(userId);
     }
-  }, [userId, fetchTransactions]);
+  }, [userId, refreshTrigger, fetchTransactions]);
 
   const closeDropdown = () => setActiveDropdown(null);
 
   const viewDetails = (transaction) => {
-    console.log(transaction);
     setSelectedTransaction(transaction);
   };
 
+  // ✅ Memoized filtered transactions
   const filteredTransactions = React.useMemo(() => {
     const lowerSearch = searchTerm.toLowerCase();
-    const lowerFilterStatus = filterStatus.toLowerCase(); // Normalize filter status
-
-    console.log(transactions);
+    const lowerFilterStatus = filterStatus.toLowerCase();
 
     return transactions.filter((transaction) => {
       const matchesStatus =
         lowerFilterStatus === "all" ||
         transaction.status.toLowerCase() === lowerFilterStatus ||
-        transaction.type.toLowerCase() === lowerFilterStatus; // Check type too
+        transaction.type.toLowerCase() === lowerFilterStatus;
 
       const matchesSearch = Object.values(transaction).some((value) =>
         String(value).toLowerCase().includes(lowerSearch)
@@ -129,7 +127,7 @@ const PaymentsDashboard = ({ userId }) => {
     });
   }, [transactions, searchTerm, filterStatus]);
 
-  // Automatically expand months that contain matching transactions
+  // Auto-expand months with matching transactions
   useEffect(() => {
     if (searchTerm.trim() === "") return;
 
@@ -139,9 +137,9 @@ const PaymentsDashboard = ({ userId }) => {
     });
 
     setExpandedMonths(matchingMonths);
-  }, [filteredTransactions, searchTerm]); // Runs when search or filtered transactions update
+  }, [filteredTransactions, searchTerm]);
 
-  // Memoized grouped transactions
+  // ✅ Memoized grouped transactions
   const groupedTransactions = React.useMemo(
     () =>
       filteredTransactions.reduce((acc, transaction) => {
@@ -167,11 +165,6 @@ const PaymentsDashboard = ({ userId }) => {
     );
   };
 
-  if (loading) {
-    <Loader />;
-  }
-
-  // Import from your icon library
   const ChevronDown = () => (
     <svg width="25" height="25" viewBox="0 2 24 24" fill="none">
       <path
@@ -186,7 +179,11 @@ const PaymentsDashboard = ({ userId }) => {
 
   return (
     <>
-      <RechargeCard userId={userId} />
+      {/* ✅ Pass refresh function to RechargeCard */}
+      <RechargeCard
+        userId={userId}
+        onPaymentSuccess={() => setRefreshTrigger((prev) => prev + 1)}
+      />
 
       <motion.div
         className="pay-con"
@@ -230,6 +227,7 @@ const PaymentsDashboard = ({ userId }) => {
               </select>
             </div>
           </div>
+
           {loading ? (
             <Loader />
           ) : filteredTransactions.length === 0 ? (
@@ -240,7 +238,6 @@ const PaymentsDashboard = ({ userId }) => {
                 <tr>
                   <th>Transaction ID</th>
                   <th>Date</th>
-                  {/* <th>Month</th> */}
                   <th>Type</th>
                   <th>Amount</th>
                   <th>Qty</th>
@@ -268,7 +265,7 @@ const PaymentsDashboard = ({ userId }) => {
                           groupedTransactions[month].filter(
                             (transaction) => transaction.status !== "pending"
                           ).length
-                        }
+                        }{" "}
                         transactions)
                       </td>
                     </tr>
@@ -409,202 +406,12 @@ const TransactionModal = ({ transaction, onClose }) => {
   );
 };
 
-const RechargeCard = ({ userId }) => {
-  const [totalUsage, setTotalUsage] = useState(
-    parseFloat(sessionStorage.getItem("totalUsage")) || 0
-  );
-  const [penaltyPrice, setPenaltyPrice] = useState(
-    parseFloat(sessionStorage.getItem("penaltyPrice")) || 0
-  );
-  const [regularPrice, setRegularPrice] = useState(
-    parseFloat(sessionStorage.getItem("regularPrice")) || 0
-  );
-  let [regularLimit, setRegularLimit] = useState(
-    parseFloat(sessionStorage.getItem("regularLimit")) || 0
-  );
-  const [penaltyLimit, setPenaltyLimit] = useState(
-    parseFloat(sessionStorage.getItem("penaltyLimit")) || 0
-  );
-
-  const [limitBYUser, setLimitByUser] = useState(
-    parseFloat(sessionStorage.getItem("limitBYUser")) || 0
-  ); // limit by user
-
-  const [maxLimit, setMaxLimit] = useState(
-    parseFloat(sessionStorage.getItem("maxLimit")) || 0
-  );
-
-  // States to track if each data point has been fetched
-  const [isWaterFlowFetched, setIsWaterFlowFetched] = useState(false);
-  const [isPriceFetched, setIsPriceFetched] = useState(false);
-  const [isLimitFetched, setIsLimitFetched] = useState(false);
-
-  const [loading, setLoading] = useState(true); // Loading state
-  // price and usages section
-
-  useEffect(() => {
-    if (!userId) return;
-
-    // Get the current year and month dynamically
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // Ensure two-digit format
-    const yearMonth = `${year}-${month}`; // Format: "YYYY-MM"
-
-    // Firestore document path: /users/{userId}/monthlyUsages/{YYYY-MM}
-    const usageDocRef = doc(db, "users", userId, "monthlyUsages", yearMonth);
-
-    // Fetch water usage for the month
-    const fetchWaterUsage = async () => {
-      try {
-        const docSnap = await getDoc(usageDocRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-
-          // Sum all values from the document (each field is a date with a number)
-          const total = Object.entries(data)
-            .filter(([key]) => key.startsWith(yearMonth)) // Only include keys with "YYYY-MM"
-            .reduce((sum, [, usage]) => sum + (usage || 0), 0);
-
-          const userLimit = Object.entries(data).find(
-            ([key]) => key === "limit"
-          ); // Find the key-value pair directly
-
-          const limitValue = userLimit ? Number(userLimit[1]) : 0; // Convert to number, default to 0
-          // console.log(limitValue);
-
-          setLimitByUser(limitValue);
-          sessionStorage.setItem("limitBYUser", limitValue);
-
-          setTotalUsage(total);
-          sessionStorage.setItem("totalUsage", total);
-        }
-        setIsWaterFlowFetched(true);
-      } catch (error) {
-        console.error("Error fetching water usage:", error);
-      }
-    };
-
-    fetchWaterUsage();
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-    // Listener for waterflowSensor
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // Ensure two-digit format
-    const yearMonth = `${year}-${month}`; // Format: "YYYY-MM"
-    const unsubscribeWaterFlow = onSnapshot(
-      doc(db, "users", userId, "monthlyUsages", yearMonth),
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          // console.log("Realtime Firestore data:", data);
-
-          // Sum all field values (assuming they are numbers)
-          const total = Object.entries(data)
-            .filter(([key]) => key.startsWith(yearMonth)) // Only include keys with "YYYY-MM"
-            .reduce((sum, [, usage]) => sum + (usage || 0), 0);
-
-          const userLimit = Object.entries(data).find(
-            ([key]) => key === "limit"
-          ); // Find the key-value pair directly
-
-          const limitValue = userLimit ? Number(userLimit[1]) : 0; // Convert to number, default to 0
-
-          setLimitByUser(limitValue);
-          sessionStorage.setItem("limitBYUser", limitValue);
-
-          setTotalUsage(total);
-          sessionStorage.setItem("totalUsage", total);
-        } else {
-          console.log("No water usage data for this month.");
-          setTotalUsage(0);
-        }
-        setIsWaterFlowFetched(true);
-      },
-      (error) => {
-        console.error("Error fetching water usage:", error);
-        setIsWaterFlowFetched(true);
-      }
-    );
-
-    // Listener for price
-    const unsubscribePrice = onSnapshot(
-      doc(db, "admin", "price"),
-      (priceDocSnap) => {
-        if (priceDocSnap.exists()) {
-          const data = priceDocSnap.data();
-          setPenaltyPrice(data.penaltyPrice || 0);
-          setRegularPrice(data.regularPrice || 0);
-          setIsPriceFetched(true);
-          sessionStorage.setItem("penaltyPrice", data.penaltyPrice);
-          sessionStorage.setItem("regularPrice", data.regularPrice);
-          // console.log("Prices fetched: 😒😒", data);
-        } else {
-          console.log("No such price document!");
-          setIsPriceFetched(true); // Even if document doesn't exist, consider it fetched
-        }
-      },
-      (error) => {
-        console.error("Error fetching price document: ", error);
-        setIsPriceFetched(true); // Prevent indefinite loading on error
-      }
-    );
-
-    // Listener for limit
-    const unsubscribeLimit = onSnapshot(
-      doc(db, "admin", "limit"),
-      (limitDocSnap) => {
-        if (limitDocSnap.exists()) {
-          const data = limitDocSnap.data();
-          setPenaltyLimit(data.penalty || 0);
-          setRegularLimit(data.regular || 100);
-          setMaxLimit(data.max);
-
-          sessionStorage.setItem("regularLimit", data.regular);
-          sessionStorage.setItem("penaltyLimit", data.penalty);
-          sessionStorage.setItem("maxLimit", data.max);
-
-          setIsLimitFetched(true);
-          // console.log("Limits fetched: ", data);
-        } else {
-          console.log("No such limit document!");
-          setIsLimitFetched(true); // Even if document doesn't exist, consider it fetched
-        }
-      },
-      (error) => {
-        console.error("Error fetching limit document: ", error);
-        setIsLimitFetched(true); // Prevent indefinite loading on error
-      }
-    );
-
-    return () => {
-      unsubscribeWaterFlow();
-      unsubscribePrice();
-      unsubscribeLimit();
-    };
-  }, [userId]);
-
-  useEffect(() => {
-    if (isWaterFlowFetched && isPriceFetched && isLimitFetched) {
-      setLoading(false);
-    }
-  }, [isWaterFlowFetched, isPriceFetched, isLimitFetched]);
-
-  regularLimit = limitBYUser;
-  const regularUsage = Math.min(totalUsage, regularLimit);
-  const penaltyUsage =
-    totalUsage > regularLimit ? totalUsage - regularLimit : 0;
-
-  const regularPriceTotal = regularUsage * regularPrice;
-  const penaltyPriceTotal = penaltyUsage * penaltyPrice;
-
-  const totalPrice = (regularPriceTotal + penaltyPriceTotal).toFixed(0);
-
-  // rechagre section
-
+// ✅ Optimized RechargeCard (from previous optimization)
+const RechargeCard = ({ userId, onPaymentSuccess }) => {
+  const [totalUsage, setTotalUsage] = useState(0);
+  const [penaltyPrice, setPenaltyPrice] = useState(0);
+  const [regularPrice, setRegularPrice] = useState(0);
+  const [limitBYUser, setLimitByUser] = useState(0);
   const [rechargeDetails, setRechargeDetails] = useState({
     amount: 0,
     usage: 0,
@@ -613,58 +420,113 @@ const RechargeCard = ({ userId }) => {
     isLoading: true,
   });
 
+  // ✅ Single useEffect for ALL real-time data
   useEffect(() => {
-    const fetchCurrentRecharge = async () => {
-      try {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const yearMonth = `${year}-${month}`;
+    if (!userId) return;
 
-        const docRef = doc(
-          db,
-          `users/${userId}/monthlyUsages/${yearMonth}/payment/payment_details`
-        );
-        const docSnap = await getDoc(docRef);
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const yearMonth = `${year}-${month}`;
+
+    // Real-time listener for water usage
+    const unsubscribeWaterFlow = onSnapshot(
+      doc(db, "users", userId, "monthlyUsages", yearMonth),
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+
+          const total = Object.entries(data)
+            .filter(([key]) => key.startsWith(yearMonth))
+            .reduce((sum, [, usage]) => sum + (usage || 0), 0);
+
+          const userLimit = data.limit || 0;
+
+          setLimitByUser(userLimit);
+          setTotalUsage(total);
+        } else {
+          setTotalUsage(0);
+          setLimitByUser(0);
+        }
+      },
+      (error) => console.error("Error fetching water usage:", error)
+    );
+
+    // Real-time listener for price
+    const unsubscribePrice = onSnapshot(
+      doc(db, "admin", "price"),
+      (priceDocSnap) => {
+        if (priceDocSnap.exists()) {
+          const data = priceDocSnap.data();
+          setPenaltyPrice(data.penaltyPrice || 0);
+          setRegularPrice(data.regularPrice || 0);
+        }
+      },
+      (error) => console.error("Error fetching price:", error)
+    );
+
+    // Real-time listener for payment status
+    const unsubscribePayment = onSnapshot(
+      doc(
+        db,
+        `users/${userId}/monthlyUsages/${yearMonth}/payment/payment_details`
+      ),
+      (docSnap) => {
+        const dueDate = new Date(now.getFullYear(), now.getMonth() + 1, 5);
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          const dueDate = new Date(now.getFullYear(), now.getMonth() + 1, 5); // 5th of next month
-
-          setRechargeDetails({
-            amount: totalPrice,
-            usage: totalUsage.toFixed(2),
-            status: data.status,
+          setRechargeDetails((prev) => ({
+            ...prev,
+            status: data.status || "pending",
             dueDate: dueDate.toLocaleDateString(),
             isLoading: false,
-          });
+          }));
         } else {
-          // Handle missing document
-          const dueDate = new Date(now.getFullYear(), now.getMonth() + 1, 5);
-          setRechargeDetails({
-            amount: 0,
-            usage: 0,
-            status: "pending", // Default to Pending
+          setRechargeDetails((prev) => ({
+            ...prev,
+            status: "pending",
             dueDate: dueDate.toLocaleDateString(),
             isLoading: false,
-          });
+          }));
         }
-      } catch (error) {
-        console.error("Error fetching recharge details:", error);
+      },
+      (error) => {
+        console.error("Error fetching payment status:", error);
         setRechargeDetails((prev) => ({ ...prev, isLoading: false }));
       }
-    };
+    );
 
-    if (userId) fetchCurrentRecharge();
+    return () => {
+      unsubscribeWaterFlow();
+      unsubscribePrice();
+      unsubscribePayment();
+    };
   }, [userId]);
-  // console.log('Recharge Details:', rechargeDetails);
+
+  // Calculate derived values
+  const regularLimit = limitBYUser;
+  const regularUsage = Math.min(totalUsage, regularLimit);
+  const penaltyUsage =
+    totalUsage > regularLimit ? totalUsage - regularLimit : 0;
+  const regularPriceTotal = regularUsage * regularPrice;
+  const penaltyPriceTotal = penaltyUsage * penaltyPrice;
+  const totalPrice = (regularPriceTotal + penaltyPriceTotal).toFixed(0);
+
+  // Update rechargeDetails when calculations change
+  useEffect(() => {
+    if (rechargeDetails.isLoading) return;
+
+    setRechargeDetails((prev) => ({
+      ...prev,
+      amount: totalPrice,
+      usage: totalUsage.toFixed(2),
+    }));
+  }, [totalPrice, totalUsage]);
 
   const handleRechargePayment = async () => {
-    // Implement payment logic here
-    console.log("Initiating recharge payment...");
+    // console.log("Initiating recharge payment...");
     try {
-      console.log(rechargeDetails.amount);
-
       const paymentId = await handlePayment(
         userId,
         rechargeDetails.amount,
@@ -672,44 +534,55 @@ const RechargeCard = ({ userId }) => {
         0,
         "recharge"
       );
+
       if (paymentId) {
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, "0");
         const yearMonth = `${year}-${month}`;
 
-        // Reference to Firestore document
         const docRef = doc(
           db,
           `users/${userId}/monthlyUsages/${yearMonth}/payment/payment_details`
         );
 
-        // Update Firestore document
-        await updateDoc(docRef, {
-          amount: rechargeDetails.amount,
-          forMonth: yearMonth,
-          razor_pay_id: paymentId,
-          status: "Completed",
-          timeStamp: now.toISOString(), // Store timestamp of payment
-        });
-
-        // Update local state
-        setRechargeDetails((prev) => ({
-          ...prev,
-          status: "Completed",
-        }));
+        await setDoc(
+          docRef,
+          {
+            amount: rechargeDetails.amount,
+            date: now.toISOString(),
+            forMonth: yearMonth,
+            razor_pay_id: paymentId,
+            status: "Completed",
+            timeStamp: now.toISOString(),
+          },
+          { merge: true }
+        );
 
         console.log("Payment success! Firestore updated.");
+
+        await createSmsQueueEntry(userId, {
+          messageType: "payment",
+          paymentAmount: rechargeDetails.amount,
+          forMonth: yearMonth,
+          paymentId: paymentId,
+          referenceId: `users/${userId}/monthlyUsages/${yearMonth}/payment/payment_details`,
+        });
+
+        if (onPaymentSuccess) {
+          onPaymentSuccess();
+        }
       }
     } catch (error) {
       console.error("Payment failed:", error);
     }
   };
 
-  if (rechargeDetails.isLoading)
+  if (rechargeDetails.isLoading) {
     return (
-      <div className="loading-recharge">Checking for pending Rechage...</div>
+      <div className="loading-recharge">Checking for pending Recharge...</div>
     );
+  }
 
   return (
     <div className="recharge-card">
@@ -729,10 +602,9 @@ const RechargeCard = ({ userId }) => {
           <span className="rc-value">₹{rechargeDetails.amount}</span>
         </div>
         <div className="rc-usage">
-          <span className="rc-label">Usages:</span>
-          <span className="rc-value">{rechargeDetails.usage}</span>
+          <span className="rc-label">Usages (in Liters):</span>
+          <span className="rc-value">{rechargeDetails.usage} L</span>
         </div>
-
         <div className="rc-due-date">
           <span className="rc-label">Due Date:</span>
           <span className="rc-value">{rechargeDetails.dueDate}</span>

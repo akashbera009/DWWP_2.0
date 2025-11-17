@@ -5,14 +5,14 @@ import New_Dwwp2_0_landing from './landing/New_Dwwp2_0_landing';
 
 import { UserContext } from "./authentication/UserContext";
 
-import Testing from "./users/Dashboard.jsx";
-import WaterUsageGraph from "./users/Graph.jsx";
-import Servo_Control from "./users/Servo_Control.jsx";
-import PaymentsDashboard from "./users/PaymentsDashboard.jsx";
-import Subscription from "./users/Subscription.jsx";
+import Testing from "./users/DashBoard/Dashboard.jsx";
+import WaterUsageGraph from "./users/Analytics/Graph.jsx";
+import Servo_Control from "./users/ServoConstrol/Servo_Control.jsx";
+import PaymentsDashboard from "./users/subscription-payments/PaymentsDashboard.jsx";
+import Subscription from "./users/subscription-payments/Subscription.jsx";
 // import Payment from "./users/Payment.jsx";
-import Online_Status from "./users/Online_Status.jsx";
-import DashboardCard from "./users/DashboardCard.jsx";
+// import Online_Status from "./users/Online_Status.jsx";
+import DashboardCard from "./users/DashBoard/DashboardCard.jsx"
 import RaiseComplaint from "./users/RaiseComplain.jsx";
 import UserSettingsSection from "./users/User_section_settings.jsx";
 
@@ -21,6 +21,7 @@ import Admin_View_user from "./admin/Admin_View_user.jsx";
 import Admin_Limit_user from "./admin/Admin_Limit_user.jsx";
 import Admin_setPrice from "./admin/Admin_setPrice.jsx";
 import Admin_Broadcast from "./admin/Admin_Broadcast.jsx";
+import Admin_SMSQueue from "./admin/Admin_SMSQueue.jsx";
 import NewDWWPAuth from "./authentication/New_dwwp_auth";
 import New_AdminDashboard from "./admin/New_AdminDashboard.jsx";
 import AppPerformance from "./admin/App_performance.jsx";
@@ -35,11 +36,9 @@ function App() {
     if (user?.email) {
       setUserId(user.email);
       sessionStorage.setItem("userId", user.email);
-      // console.log("✅ User ID stored:", user.email);
     }
-  }, [user]); // ✅ Run effect when `user` changes
+  }, [user]); 
 
-  // console.log("Current userId:", userId);
 
   return (
     <Router basename="/">
@@ -69,6 +68,7 @@ function App() {
           <Route path="admin_limit_user" element={<Admin_Limit_user />} />
           <Route path="admin_setPrice" element={<Admin_setPrice />} />
           <Route path="admin_Brodcast" element={<Admin_Broadcast />} />
+          <Route path="admin_sms_queue" element={<Admin_SMSQueue />} />
           <Route path="admin_Dashboard" element={<New_AdminDashboard />} />
           <Route path="app_performence" element={<AppPerformance />} />
           <Route  path="Admin_see_UserFeedback" element={<Admin_see_UserFeedBack />} />
